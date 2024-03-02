@@ -1,0 +1,32 @@
+from flask import Blueprint, request, jsonify
+from databases import add_todo_list
+
+todo_list_router = Blueprint("api user task", __name__)
+
+
+@todo_list_router.post("/todoplus/v1/todolist")
+async def todo_list():
+    data = request.json
+    username = data.get("username")
+    task = data.get("task")
+    if username and task:
+        add_todo_list(username, task)
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "result": "success created",
+                }
+            ),
+            201,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 400,
+                    "result": "bad request",
+                }
+            ),
+            400,
+        )
