@@ -21,7 +21,7 @@ todo_list = Table(
     "todo_list",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("username", String),
+    Column("username", String, ForeignKey("user.username")),
     Column("task", String),
     Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
     Column("is_done", Boolean, default=False),
