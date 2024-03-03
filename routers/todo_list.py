@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
-from databases import add_todo_list
+from databases import TodolistDatabase
 
 todo_list_router = Blueprint("api user task", __name__)
+db = TodolistDatabase()
 
 
 @todo_list_router.post("/todoplus/v1/todolist")
@@ -10,7 +11,7 @@ async def todo_list():
     username = data.get("username")
     task = data.get("task")
     if username and task:
-        add_todo_list(username, task)
+        await db.insert(username, task)
         return (
             jsonify(
                 {

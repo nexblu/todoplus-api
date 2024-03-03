@@ -3,8 +3,9 @@ from models import TodoList
 from .database import Database
 
 
-class TodolistDatabase:
+class TodolistDatabase(Database):
     def __init__(self) -> None:
+        super().__init__()
         init_db()
 
     async def insert(self, username, task):
@@ -12,8 +13,9 @@ class TodolistDatabase:
         db_session.add(todo_list)
         db_session.commit()
 
-    async def delete(self):
-        pass
+    async def delete(self, type, **kwargs):
+        username = kwargs.get("username")
+        id = kwargs.get("id")
 
     async def get(self):
         pass
