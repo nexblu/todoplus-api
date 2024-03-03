@@ -1,4 +1,3 @@
-from sqlalchemy.exc import OperationalError
 from flask import Blueprint, jsonify, request
 from databases import UserDatabase
 
