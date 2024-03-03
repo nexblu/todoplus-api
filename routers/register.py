@@ -12,7 +12,7 @@ async def register():
     email = data.get("email")
     password = data.get("password")
     if username and email and password:
-        result = await db.get("register", username=username, password=password)
+        result = await db.get("register", username=username, email=email)
         if result:
             return (
                 jsonify(
