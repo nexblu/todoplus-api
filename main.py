@@ -15,5 +15,10 @@ app.register_blueprint(todo_list_router)
 app.register_blueprint(register_router)
 
 
+@app.get("/")
+def home():
+    return "welcome to todoplus api"
+
+
 if __name__ == "__main__":
     app.run(debug=debug_mode)
