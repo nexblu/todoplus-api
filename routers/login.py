@@ -12,7 +12,7 @@ db = UserDatabase()
 async def login(username, password):
     try:
         result = await db.get("login", username=username, password=password)
-    except OperationalError:
+    except:
         return (
             jsonify(
                 {
