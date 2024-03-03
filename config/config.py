@@ -3,7 +3,7 @@ import os
 
 load_dotenv()
 
-debug_mode = os.getenv("DEBUG")
-database_url = os.getenv("DB_URL")
-jwt_key = os.getenv("JWT_KEY")
-algorithm = os.getenv("ALGORITHM")
+debug_mode = os.environ.get("DEBUG")
+database_url = os.environ.get("DB_URL")
+jwt_key = os.environ.get("JWT_KEY")
+algorithm = os.environ.get("ALGORITHM")
