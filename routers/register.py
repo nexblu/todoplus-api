@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from databases import UserDatabase
+import traceback
 
 register_router = Blueprint("api user register", __name__)
 db = UserDatabase()
@@ -12,8 +13,9 @@ async def register():
     email = data.get("email")
     password = data.get("password")
     if username and email and password:
-        result = await db.get("register", username=username, email=email)
-        if result:
+        try:
+            await db.insert(username=username, email=email, password=password)
+        except:
             return (
                 jsonify(
                     {
@@ -24,7 +26,6 @@ async def register():
                 400,
             )
         else:
-            await db.insert(username=username, email=email, password=password)
             return (
                 jsonify(
                     {
