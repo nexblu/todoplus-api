@@ -1,5 +1,4 @@
 from jwt import encode
-from sqlalchemy.exc import OperationalError
 from flask import Blueprint, jsonify
 from databases import UserDatabase
 from config import jwt_key, algorithm

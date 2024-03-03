@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from databases import UserDatabase
-import traceback
 
 register_router = Blueprint("api user register", __name__)
 db = UserDatabase()
