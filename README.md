@@ -4,3 +4,10 @@
     <li>Flask (Framework Python)</li>
     <li>SQLite (Database SQL)</li>
 </ul>
+<h2>Fiture</h2>
+<ul>
+    <li>Authentication With Token (Login, Register)</li>
+    <li>Change Password</li>
+    <li>Change Email</li>
+    <li>Change Username</li>
+</ul>
