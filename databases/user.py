@@ -48,9 +48,9 @@ class UserDatabase(Database):
 
     async def update(self, type, **kwargs):
         username = kwargs.get("username")
-        email = kwargs.get("email")
         password = kwargs.get("password")
         new_password = kwargs.get("new_password")
+        new_username = kwargs.get("new_username")
         if type == "password":
             user = User.query.filter(
                 and_(
@@ -59,6 +59,15 @@ class UserDatabase(Database):
                 )
             ).first()
             user.password = new_password
+            db_session.commit()
+        elif type == "username":
+            user = User.query.filter(
+                and_(
+                    func.lower(User.username) == username.lower(),
+                    User.password == password,
+                )
+            ).first()
+            user.username = new_username
             db_session.commit()
 
     async def delete(self):

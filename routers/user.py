@@ -5,6 +5,52 @@ user_router = Blueprint("api user", __name__)
 db = UserDatabase()
 
 
+@user_router.put("/todoplus/v1/user/change_username")
+async def update_username():
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+    new_username = data.get("new_username")
+    if username and password and new_username:
+        result = await db.get("login", username=username, password=password)
+        if result:
+            await db.update(
+                "password",
+                username=result.username,
+                password=result.password,
+                new_username=new_username,
+            )
+            return (
+                jsonify(
+                    {
+                        "status_code": 200,
+                        "result": "success change password",
+                    }
+                ),
+                200,
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "result": "bad request",
+                    }
+                ),
+                400,
+            )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 400,
+                    "result": "bad request",
+                }
+            ),
+            400,
+        )
+
+
 @user_router.put("/todoplus/v1/user/change_password")
 async def update_password():
     data = request.json
