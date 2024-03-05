@@ -30,7 +30,10 @@ todo_list = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column(
-        "username", String, ForeignKey("user.username", ondelete="CASCADE"), unique=True
+        "username",
+        String(collation="C"),
+        ForeignKey("user.username", ondelete="CASCADE"),
+        unique=True,
     ),
     Column("task", String),
     Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
