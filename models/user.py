@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, Boolean, Float, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Boolean, Float
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
 import datetime
@@ -22,12 +22,11 @@ user = Table(
     "user",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("username", String),
-    Column("email", String),
+    Column("username", String, unique=True),
+    Column("email", String, unique=True),
     Column("password", String),
     Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
     Column("is_active", Boolean, default=True),
-    UniqueConstraint("username", "email", name="uq_user_username_email"),
 )
 
 mapper_registry.map_imperatively(User, user)

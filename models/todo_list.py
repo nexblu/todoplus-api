@@ -30,11 +30,12 @@ todo_list = Table(
     "todo_list",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("username", String, ForeignKey("user.username", ondelete="CASCADE")),
+    Column(
+        "username", String, ForeignKey("user.username", ondelete="CASCADE"), unique=True
+    ),
     Column("task", String),
     Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
     Column("is_done", Boolean, default=False),
-    UniqueConstraint("username", name="uq_todo_list_username"),
 )
 
 mapper_registry.map_imperatively(TodoList, todo_list)
