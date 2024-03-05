@@ -11,3 +11,7 @@
     <li>Change Email</li>
     <li>Change Username</li>
 </ul>
+<h2>App</h2>
+<ul>
+    <li><a href="https://github.com/nexblu/todoplus-web">Web App</a></li>
+</ul>
