@@ -24,7 +24,7 @@ async def update_username():
                 jsonify(
                     {
                         "status_code": 200,
-                        "result": "success change password",
+                        "result": "success change username",
                     }
                 ),
                 200,
