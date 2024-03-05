@@ -1,12 +1,4 @@
-from sqlalchemy import (
-    Table,
-    Column,
-    Integer,
-    String,
-    Boolean,
-    Float,
-    UniqueConstraint,
-)
+from sqlalchemy import Table, Column, Integer, String, Boolean, Float, UniqueConstraint
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
 import datetime
