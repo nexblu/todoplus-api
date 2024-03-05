@@ -11,16 +11,28 @@ async def todo_list():
     username = data.get("username")
     task = data.get("task")
     if username and task:
-        await db.insert(username, task)
-        return (
-            jsonify(
-                {
-                    "status_code": 201,
-                    "result": "success created",
-                }
-            ),
-            201,
-        )
+        try:
+            await db.insert(username, task)
+        except:
+            return (
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "result": "bad request",
+                    }
+                ),
+                400,
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "status_code": 201,
+                        "result": "success created",
+                    }
+                ),
+                201,
+            )
     else:
         return (
             jsonify(
