@@ -6,7 +6,6 @@ from sqlalchemy import (
     Boolean,
     Float,
     ForeignKey,
-    UniqueConstraint,
 )
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
