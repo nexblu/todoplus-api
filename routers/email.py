@@ -1,13 +1,11 @@
 from flask import Blueprint, jsonify
-from databases import UserDatabase
 from email_validator import validate_email, EmailNotValidError
 
 email_router = Blueprint("api email", __name__)
-db = UserDatabase()
 
 
 @email_router.get("/todoplus/v1/email/<string:email>")
-async def email(email):
+async def email_validator(email):
     try:
         emailinfo = validate_email(email, check_deliverability=False)
         email = emailinfo.normalized
@@ -19,6 +17,7 @@ async def email(email):
                     "result": "email not valid",
                 }
             ),
+            404,
         )
     else:
         return (
@@ -28,4 +27,5 @@ async def email(email):
                     "result": "email is valid",
                 }
             ),
+            200,
         )
