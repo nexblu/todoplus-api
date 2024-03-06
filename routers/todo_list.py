@@ -6,7 +6,7 @@ db = TodolistDatabase()
 
 
 @todo_list_router.post("/todoplus/v1/todolist")
-async def todo_list():
+async def todo_list_add():
     data = request.json
     username = data.get("username")
     task = data.get("task")
@@ -43,3 +43,19 @@ async def todo_list():
             ),
             400,
         )
+
+
+@todo_list_router.get("/todoplus/v1/todolist/<string:username>")
+async def todo_list_get(username):
+    result = await db.get("username", username=username)
+    todo_lists = [
+        (
+            todo_list.task,
+            todo_list.username,
+            todo_list.is_done,
+            todo_list.id,
+            todo_list.created_at,
+        )
+        for todo_list in result
+    ]
+    return jsonify({"result": todo_lists, "status_code": 200}, 200)
