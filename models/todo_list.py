@@ -35,8 +35,8 @@ todo_list = Table(
         ForeignKey("user.username", ondelete="CASCADE"),
     ),
     Column("task", String),
-    Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
-    Column("is_done", Boolean, default=False),
+    Column("created_at", Float),
+    Column("is_done", Boolean),
 )
 
 mapper_registry.map_imperatively(TodoList, todo_list)

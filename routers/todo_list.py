@@ -11,6 +11,8 @@ async def todo_list_add():
     data = request.json
     username = data.get("username")
     task = data.get("task")
+    created_at = data.get("created_at")
+    is_done = data.get("is_done")
     if username and task:
         try:
             await db_todo_list.insert(username, task)

@@ -9,8 +9,8 @@ class TodolistDatabase(Database):
         super().__init__()
         init_db()
 
-    async def insert(self, username, task):
-        todo_list = TodoList(username, task)
+    async def insert(self, username, task, created_at, is_done):
+        todo_list = TodoList(username, task, created_at, is_done)
         db_session.add(todo_list)
         db_session.commit()
 
