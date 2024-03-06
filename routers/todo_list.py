@@ -52,13 +52,13 @@ async def todo_list_get(username):
     if user:
         result = await db_todo_list.get("username", username=username)
         todo_lists = [
-            (
-                todo_list.task,
-                todo_list.username,
-                todo_list.is_done,
-                todo_list.id,
-                todo_list.created_at,
-            )
+            {
+                "id": todo_list.id,
+                "username": todo_list.username,
+                "task": todo_list.task,
+                "is_done": todo_list.is_done,
+                "created_at": todo_list.created_at,
+            }
             for todo_list in result
         ]
         return jsonify({"result": todo_lists, "status_code": 200}, 200)
