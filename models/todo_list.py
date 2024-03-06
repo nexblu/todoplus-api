@@ -16,9 +16,11 @@ mapper_registry = registry()
 class TodoList:
     query = db_session.query_property()
 
-    def __init__(self, username, task):
+    def __init__(self, username, task, created_at, is_done):
         self.username = username
         self.task = task
+	self.created_at = created_at
+        self.is_done = is_done
 
     def __repr__(self):
         return f"<User {self.username!r}>"
