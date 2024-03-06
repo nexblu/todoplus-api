@@ -22,7 +22,7 @@ class TodoList:
         self.task = task
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.username!r}>"
 
 
 todo_list = Table(
