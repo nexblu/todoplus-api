@@ -15,7 +15,7 @@ async def todo_list_add():
     is_done = data.get("is_done")
     if username and task:
         try:
-            await db_todo_list.insert(username, task)
+            await db_todo_list.insert(username, task, created_at, is_done)
         except:
             return (
                 jsonify(
