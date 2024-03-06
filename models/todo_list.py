@@ -33,7 +33,6 @@ todo_list = Table(
         "username",
         String(collation="C"),
         ForeignKey("user.username", ondelete="CASCADE"),
-        unique=True,
     ),
     Column("task", String),
     Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
