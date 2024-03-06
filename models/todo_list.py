@@ -9,7 +9,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
-import datetime
 
 mapper_registry = registry()
 
