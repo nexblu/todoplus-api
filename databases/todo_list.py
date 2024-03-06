@@ -37,6 +37,7 @@ class TodolistDatabase(Database):
         username = kwargs.get("username")
         id = kwargs.get("id")
         new_task = kwargs.get("new_task")
+        is_done = kwargs.get("is_done")
         if type == "id":
             todo = TodoList.query.filter(
                 and_(
@@ -45,4 +46,13 @@ class TodolistDatabase(Database):
                 )
             ).first()
             todo.task = new_task
+            db_session.commit()
+        elif type == "is_done":
+            todo = TodoList.query.filter(
+                and_(
+                    func.lower(TodoList.username) == username.lower(),
+                    TodoList.id == id,
+                )
+            ).first()
+            todo.is_done = is_done
             db_session.commit()
