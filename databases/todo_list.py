@@ -1,7 +1,7 @@
 from .config import db_session, init_db
 from models import TodoList
 from .database import Database
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 
 class TodolistDatabase(Database):
@@ -20,10 +20,29 @@ class TodolistDatabase(Database):
 
     async def get(self, type, **kwargs):
         username = kwargs.get("username")
+        id = kwargs.get("id")
         if type == "username":
             return TodoList.query.filter(
                 func.lower(TodoList.username) == username.lower()
             ).all()
+        if type == "id":
+            return TodoList.query.filter(
+                and_(
+                    func.lower(TodoList.username) == username.lower(),
+                    TodoList.id == id,
+                )
+            ).first()
 
-    async def update(self):
-        pass
+    async def update(self, type, **kwargs):
+        username = kwargs.get("username")
+        id = kwargs.get("id")
+        new_task = kwargs.get("new_task")
+        if type == "id":
+            todo = TodoList.query.filter(
+                and_(
+                    func.lower(TodoList.username) == username.lower(),
+                    TodoList.id == id,
+                )
+            ).first()
+            todo.task = new_task
+            db_session.commit()
