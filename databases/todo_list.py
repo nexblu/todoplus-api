@@ -17,6 +17,15 @@ class TodolistDatabase(Database):
     async def delete(self, type, **kwargs):
         username = kwargs.get("username")
         id = kwargs.get("id")
+        todo = TodoList.query.filter(
+            and_(
+                func.lower(TodoList.username) == username.lower(),
+                TodoList.id == id,
+            )
+        ).first()
+        if type == "task":
+            db_session.delete(todo)
+            db_session.commit()
 
     async def get(self, type, **kwargs):
         username = kwargs.get("username")

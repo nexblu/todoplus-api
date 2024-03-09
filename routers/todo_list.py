@@ -37,6 +37,35 @@ async def todo_list_add():
         )
 
 
+@todo_list_router.delete("/todoplus/v1/todolist")
+async def todo_list_delete():
+    data = request.json
+    username = data.get("username")
+    id = data.get("id")
+    task = await db_todo_list.get("id", username=username, id=id)
+    if task:
+        await db_todo_list.delete("task", username=username, id=id)
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "result": f"success delete todo {id!r}",
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "result": f"task {id!r} not found",
+                }
+            ),
+            404,
+        )
+
+
 @todo_list_router.get("/todoplus/v1/todolist/<string:username>")
 async def todo_list_get(username):
     user = await db_user.get("username", username=username)
