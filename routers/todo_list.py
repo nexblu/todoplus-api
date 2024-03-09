@@ -100,38 +100,24 @@ async def todo_list_update_is_done():
     username = data.get("username")
     id = data.get("id")
     is_done = data.get("is_done")
-    user = await db_user.get("username", username=username)
-    if user:
-        task = await db_todo_list.get("id", username=username, id=id)
-        if task:
-            await db_todo_list.update(
-                "is_done", username=username, id=id, is_done=is_done
-            )
-            return (
-                jsonify(
-                    {
-                        "status_code": 200,
-                        "result": f"success change todo {id!r}",
-                    }
-                ),
-                200,
-            )
-        else:
-            return (
-                jsonify(
-                    {
-                        "status_code": 404,
-                        "result": f"task {id!r} not found",
-                    }
-                ),
-                404,
-            )
+    task = await db_todo_list.get("id", username=username, id=id)
+    if task:
+        await db_todo_list.update("is_done", username=username, id=id, is_done=is_done)
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "result": f"success change todo {id!r}",
+                }
+            ),
+            200,
+        )
     else:
         return (
             jsonify(
                 {
                     "status_code": 404,
-                    "result": f"user {username!r} not found",
+                    "result": f"task {id!r} not found",
                 }
             ),
             404,
