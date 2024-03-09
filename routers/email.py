@@ -14,7 +14,7 @@ async def email_validator(email):
             jsonify(
                 {
                     "status_code": 404,
-                    "result": "email not valid",
+                    "result": f"email {email!r} not valid",
                 }
             ),
             404,

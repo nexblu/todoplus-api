@@ -11,36 +11,25 @@ async def register():
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    if username and email and password:
-        try:
-            await db.insert(username=username, email=email, password=password)
-        except:
-            return (
-                jsonify(
-                    {
-                        "status_code": 400,
-                        "result": "bad request",
-                    }
-                ),
-                400,
-            )
-        else:
-            return (
-                jsonify(
-                    {
-                        "status_code": 201,
-                        "result": "success created",
-                    }
-                ),
-                201,
-            )
-    else:
+    try:
+        await db.insert(username=username, email=email, password=password)
+    except:
         return (
             jsonify(
                 {
                     "status_code": 400,
-                    "result": "bad request",
+                    "result": f"user {username!r} already available",
                 }
             ),
             400,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "result": "success created",
+                }
+            ),
+            201,
         )

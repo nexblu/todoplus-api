@@ -13,30 +13,9 @@ async def todo_list_add():
     task = data.get("task")
     created_at = data.get("created_at")
     is_done = data.get("is_done")
-    if username and task:
-        try:
-            await db_todo_list.insert(username, task, created_at, is_done)
-        except:
-            return (
-                jsonify(
-                    {
-                        "status_code": 400,
-                        "result": "bad request",
-                    }
-                ),
-                400,
-            )
-        else:
-            return (
-                jsonify(
-                    {
-                        "status_code": 201,
-                        "result": "success created",
-                    }
-                ),
-                201,
-            )
-    else:
+    try:
+        result = await db_todo_list.insert(username, task, created_at, is_done)
+    except:
         return (
             jsonify(
                 {
@@ -45,6 +24,16 @@ async def todo_list_add():
                 }
             ),
             400,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "result": f"success created with task id => {result.id!r}",
+                }
+            ),
+            201,
         )
 
 
@@ -69,7 +58,7 @@ async def todo_list_get(username):
             jsonify(
                 {
                     "status_code": 404,
-                    "result": "bad request",
+                    "result": f"user {username!r} not found",
                 }
             ),
             404,
@@ -93,7 +82,7 @@ async def todo_list_update_is_done():
                 jsonify(
                     {
                         "status_code": 200,
-                        "result": f"success change todo => {id}",
+                        "result": f"success change todo {id!r}",
                     }
                 ),
                 200,
@@ -113,7 +102,7 @@ async def todo_list_update_is_done():
             jsonify(
                 {
                     "status_code": 404,
-                    "result": f"user {id!r} not found",
+                    "result": f"user {username!r} not found",
                 }
             ),
             404,

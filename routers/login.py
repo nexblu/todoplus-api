@@ -16,7 +16,7 @@ async def login(username, password):
             jsonify(
                 {
                     "status_code": 404,
-                    "result": "bad request",
+                    "result": f"{username!r} not found",
                 }
             ),
             404,
