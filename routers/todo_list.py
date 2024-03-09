@@ -76,86 +76,44 @@ async def todo_list_get(username):
         )
 
 
-@todo_list_router.put("/todoplus/v1/todolist")
-async def todo_list_update():
+@todo_list_router.put("/todoplus/v1/todolist/is_done")
+async def todo_list_update_is_done():
     data = request.json
     username = data.get("username")
     id = data.get("id")
-    category = data.get("category")
     is_done = data.get("is_done")
-    new_task = data.get("new_task")
     user = await db_user.get("username", username=username)
     if user:
-        try:
-            id = int(id)
-        except:
+        task = await db_todo_list.get("id", username=username, id=id)
+        if task:
+            await db_todo_list.update(
+                "is_done", username=username, id=id, is_done=is_done
+            )
             return (
                 jsonify(
                     {
-                        "status_code": 400,
-                        "result": "bad request",
+                        "status_code": 200,
+                        "result": f"success change todo => {id}",
                     }
                 ),
-                400,
+                200,
             )
         else:
-            task_id = await db_todo_list.get("id", username=username, id=id)
-            if task_id:
-                if category in ("task", "is_done"):
-                    if category == "task":
-                        await db_todo_list.update(
-                            "id", username=username, id=id, new_task=new_task
-                        )
-                    elif category == "is_done":
-                        try:
-                            is_done = bool(is_done)
-                        except:
-                            return (
-                                jsonify(
-                                    {
-                                        "status_code": 400,
-                                        "result": "bad request",
-                                    }
-                                ),
-                                400,
-                            )
-                        else:
-                            await db_todo_list.update(
-                                "id", username=username, id=id, is_done=is_done
-                            )
-                    return jsonify(
-                        {
-                            "result": f"success update to id : {id} | [{category}]",
-                            "status_code": 200,
-                        },
-                        200,
-                    )
-                else:
-                    return (
-                        jsonify(
-                            {
-                                "status_code": 400,
-                                "result": "bad request",
-                            }
-                        ),
-                        400,
-                    )
-            else:
-                return (
-                    jsonify(
-                        {
-                            "status_code": 404,
-                            "result": "bad request",
-                        }
-                    ),
-                    404,
-                )
+            return (
+                jsonify(
+                    {
+                        "status_code": 404,
+                        "result": f"task {id!r} not found",
+                    }
+                ),
+                404,
+            )
     else:
         return (
             jsonify(
                 {
                     "status_code": 404,
-                    "result": "bad request",
+                    "result": f"user {id!r} not found",
                 }
             ),
             404,
