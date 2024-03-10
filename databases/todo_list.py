@@ -33,7 +33,7 @@ class TodolistDatabase(Database):
         if type == "username":
             return TodoList.query.filter(
                 func.lower(TodoList.username) == username.lower()
-            ).all()
+            ).order_by(TodoList.created_at).all()
         if type == "id":
             return TodoList.query.filter(
                 and_(
