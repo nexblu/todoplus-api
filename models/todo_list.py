@@ -17,11 +17,10 @@ mapper_registry = registry()
 class TodoList:
     query = db_session.query_property()
 
-    def __init__(self, username, task, created_at, is_done):
+    def __init__(self, username, task, created_at):
         self.username = username
         self.task = task
         self.created_at = created_at
-        self.is_done = is_done
 
     def __repr__(self):
         return f"<User {self.username!r}>"
@@ -38,7 +37,7 @@ todo_list = Table(
         nullable=False,
     ),
     Column("task", String, nullable=False),
-    Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
+    Column("created_at", Float, nullable=False),
     Column("is_done", Boolean, default=False),
 )
 
