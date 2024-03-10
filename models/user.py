@@ -22,10 +22,14 @@ user = Table(
     "user",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("username", String(collation="C"), unique=True),
-    Column("email", String(collation="C"), unique=True),
-    Column("password", String),
-    Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
+    Column("username", String(collation="C"), unique=True, nullable=False),
+    Column("email", String(collation="C"), unique=True, nullable=False),
+    Column("password", String, nullable=False),
+    Column(
+        "created_at",
+        Float,
+        default=datetime.datetime.utcnow().timestamp(),
+    ),
     Column("is_active", Boolean, default=True),
 )
 

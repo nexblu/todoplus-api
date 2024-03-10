@@ -9,6 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
+import datetime
 
 mapper_registry = registry()
 
@@ -34,10 +35,11 @@ todo_list = Table(
         "username",
         String(collation="C"),
         ForeignKey("user.username", ondelete="CASCADE"),
+        nullable=False,
     ),
-    Column("task", String),
-    Column("created_at", Float),
-    Column("is_done", Boolean),
+    Column("task", String, nullable=False),
+    Column("created_at", Float, default=datetime.datetime.utcnow().timestamp()),
+    Column("is_done", Boolean, default=False),
 )
 
 mapper_registry.map_imperatively(TodoList, todo_list)
