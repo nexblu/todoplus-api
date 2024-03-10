@@ -1,4 +1,4 @@
-from jwt import encode
+import jwt
 from flask import Blueprint, jsonify
 from databases import UserDatabase
 from config import jwt_key, algorithm
@@ -23,7 +23,7 @@ async def login(username, password):
         )
     else:
         if result:
-            encoded_jwt = encode(
+            encoded_jwt = jwt.encode(
                 {
                     "username": result.username,
                     "email": result.email,
