@@ -14,7 +14,7 @@ async def todo_list_add():
     created_at = data.get("created_at")
     is_done = data.get("is_done")
     try:
-        result = await db_todo_list.insert(username, task, created_at, is_done)
+        await db_todo_list.insert(username, task, created_at, is_done)
     except:
         return (
             jsonify(
@@ -30,7 +30,7 @@ async def todo_list_add():
             jsonify(
                 {
                     "status_code": 201,
-                    "result": f"success created with task id => {result.id!r}",
+                    "result": f"success created task {task!r}",
                 }
             ),
             201,
