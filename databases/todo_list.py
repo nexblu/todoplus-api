@@ -31,16 +31,40 @@ class TodolistDatabase(Database):
         username = kwargs.get("username")
         id = kwargs.get("id")
         if type == "username":
-            return TodoList.query.filter(
-                func.lower(TodoList.username) == username.lower()
-            ).order_by(TodoList.created_at).all()
-        if type == "id":
+            return (
+                TodoList.query.filter(func.lower(TodoList.username) == username.lower())
+                .order_by(TodoList.created_at)
+                .all()
+            )
+        elif type == "id":
             return TodoList.query.filter(
                 and_(
                     func.lower(TodoList.username) == username.lower(),
                     TodoList.id == id,
                 )
             ).first()
+        elif type == "completed":
+            return (
+                TodoList.query.filter(
+                    and_(
+                        func.lower(TodoList.username) == username.lower(),
+                        TodoList.is_done == True,
+                    )
+                )
+                .order_by(TodoList.created_at)
+                .all()
+            )
+        elif type == "inclomplete":
+            return (
+                TodoList.query.filter(
+                    and_(
+                        func.lower(TodoList.username) == username.lower(),
+                        TodoList.is_done == False,
+                    )
+                )
+                .order_by(TodoList.created_at)
+                .all()
+            )
 
     async def update(self, type, **kwargs):
         username = kwargs.get("username")

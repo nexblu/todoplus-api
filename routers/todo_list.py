@@ -93,6 +93,62 @@ async def todo_list_get(username):
         )
 
 
+@todo_list_router.get("/todoplus/v1/todolist/completed/<string:username>")
+async def todo_list_get_completed(username):
+    user = await db_user.get("username", username=username)
+    if user:
+        result = await db_todo_list.get("completed", username=username)
+        todo_lists = [
+            {
+                "id": todo_list.id,
+                "username": todo_list.username,
+                "task": todo_list.task,
+                "is_done": todo_list.is_done,
+                "created_at": todo_list.created_at,
+            }
+            for todo_list in result
+        ]
+        return jsonify({"result": todo_lists, "status_code": 200}, 200)
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "result": f"user {username!r} not found",
+                }
+            ),
+            404,
+        )
+
+
+@todo_list_router.get("/todoplus/v1/todolist/incomplete/<string:username>")
+async def todo_list_get_incomplete(username):
+    user = await db_user.get("username", username=username)
+    if user:
+        result = await db_todo_list.get("incomplete", username=username)
+        todo_lists = [
+            {
+                "id": todo_list.id,
+                "username": todo_list.username,
+                "task": todo_list.task,
+                "is_done": todo_list.is_done,
+                "created_at": todo_list.created_at,
+            }
+            for todo_list in result
+        ]
+        return jsonify({"result": todo_lists, "status_code": 200}, 200)
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "result": f"user {username!r} not found",
+                }
+            ),
+            404,
+        )
+
+
 @todo_list_router.put("/todoplus/v1/todolist/is_done")
 async def todo_list_update_is_done():
     data = request.json
