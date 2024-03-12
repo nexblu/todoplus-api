@@ -177,3 +177,33 @@ async def todo_list_update_is_done():
             ),
             404,
         )
+
+
+@todo_list_router.put("/todoplus/v1/todolist/task")
+async def todo_list_update_task():
+    data = request.json
+    username = data.get("username")
+    id = data.get("id")
+    new_task = data.get("new_task")
+    task = await db_todo_list.get("id", username=username, id=id)
+    if task:
+        await db_todo_list.update("task", username=username, id=id, new_task=new_task)
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "result": f"success change todo {id!r}",
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "result": f"task {id!r} not found",
+                }
+            ),
+            404,
+        )
