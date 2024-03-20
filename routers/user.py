@@ -5,6 +5,31 @@ user_router = Blueprint("api user", __name__)
 db = UserDatabase()
 
 
+@user_router.get("/todoplus/v1/user/email/<string:email>")
+async def user_email(email):
+    result = await db.get("email", email=email)
+    if result:
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "result": f"email {email!r} is valid",
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "result": f"email {email!r} not found",
+                }
+            ),
+            404,
+        )
+
+
 @user_router.put("/todoplus/v1/user/username")
 async def update_username():
     data = request.json

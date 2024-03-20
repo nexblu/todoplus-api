@@ -1,6 +1,6 @@
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,virtualenv,venv,test,pythonvanilla,python,linux,flask,dotenv,database,remix+vercel,vercel
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,virtualenv,venv,test,pythonvanilla,python,linux,flask,dotenv,database,remix+vercel,vercel
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,virtualenv,vercel,venv,test,remix+vercel,pythonvanilla,python,linux,flask,dotenv,database,sass
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,virtualenv,vercel,venv,test,remix+vercel,pythonvanilla,python,linux,flask,dotenv,database,sass
 
 ### Database ###
 *.accdb
@@ -320,6 +320,12 @@ pyrightconfig.json
 /api/index.js
 /api/index.js.map
 
+### Sass ###
+.sass-cache/
+*.css.map
+*.sass.map
+*.scss.map
+
 ### Test ###
 ### Ignore all files that could be used to test your code and
 ### you wouldn't want to push
@@ -437,7 +443,7 @@ pip-selfcheck.json
 .history
 .ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,virtualenv,venv,test,pythonvanilla,python,linux,flask,dotenv,database,remix+vercel,vercel
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,virtualenv,vercel,venv,test,remix+vercel,pythonvanilla,python,linux,flask,dotenv,database,sass
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 

@@ -28,9 +28,9 @@ user = Table(
     Column(
         "created_at",
         Float,
-        default=datetime.datetime.utcnow().timestamp(),
+        default=datetime.datetime.now(datetime.timezone.utc).timestamp(),
     ),
-    Column("is_active", Boolean, default=True),
+    Column("is_active", Boolean, default=False),
 )
 
 mapper_registry.map_imperatively(User, user)

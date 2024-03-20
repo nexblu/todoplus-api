@@ -6,6 +6,7 @@ from routers.user import user_router
 from routers.todo_list import todo_list_router
 from routers.register import register_router
 from routers.email import email_router
+from routers.reset_password import reset_router
 from databases import db_session
 
 app = Flask(__name__)
@@ -16,6 +17,7 @@ app.register_blueprint(user_router)
 app.register_blueprint(todo_list_router)
 app.register_blueprint(register_router)
 app.register_blueprint(email_router)
+app.register_blueprint(reset_router)
 
 
 @app.teardown_appcontext
