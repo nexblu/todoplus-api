@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, Boolean, Float, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
 import datetime

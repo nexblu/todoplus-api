@@ -1,8 +1,15 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect
 from utils import Misc
 import smtplib
 from email.mime.text import MIMEText
-from config import smtp_password, smtp_email, smtp_server, smtp_port, api_url
+from config import (
+    smtp_password,
+    smtp_email,
+    smtp_server,
+    smtp_port,
+    api_url,
+    todoplus_url,
+)
 from databases import UserDatabase, ResetPasswordDatabase
 
 reset_router = Blueprint("route reset password", __name__)
@@ -33,7 +40,7 @@ async def reset_password(token):
                     new_password=request.form["password"],
                 )
                 await token_db.delete("email", email=token_["email"])
-                return render_template("forgot-password.html")
+                return redirect(todoplus_url)
             else:
                 return "invalid token"
         else:
