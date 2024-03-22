@@ -1,7 +1,6 @@
 from sqlalchemy import Table, Column, Integer, String, Boolean, Float
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
-import datetime
 
 mapper_registry = registry()
 
@@ -9,10 +8,11 @@ mapper_registry = registry()
 class User:
     query = db_session.query_property()
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password, created_at):
         self.username = username
         self.email = email
         self.password = password
+        self.created_at = created_at
 
     def __repr__(self):
         return f"<User {self.username!r}>"
@@ -25,11 +25,7 @@ user = Table(
     Column("username", String(collation="C"), unique=True, nullable=False),
     Column("email", String(collation="C"), unique=True, nullable=False),
     Column("password", String, nullable=False),
-    Column(
-        "created_at",
-        Float,
-        default=datetime.datetime.now(datetime.timezone.utc).timestamp(),
-    ),
+    Column("created_at", Float, nullable=False),
     Column("is_active", Boolean, default=False),
 )
 

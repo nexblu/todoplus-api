@@ -11,8 +11,11 @@ async def register():
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
+    created_at = data.get("created_at")
     try:
-        await db.insert(username=username, email=email, password=password)
+        await db.insert(
+            username=username, email=email, password=password, created_at=created_at
+        )
     except:
         return (
             jsonify(

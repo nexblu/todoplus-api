@@ -13,11 +13,8 @@ class UserDatabase(Database):
         username = kwargs.get("username")
         email = kwargs.get("email")
         password = kwargs.get("password")
-        user = User(
-            username,
-            email,
-            password,
-        )
+        created_at = kwargs.get("created_at")
+        user = User(username, email, password, created_at)
         db_session.add(user)
         db_session.commit()
 

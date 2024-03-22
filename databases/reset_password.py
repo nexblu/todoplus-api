@@ -9,8 +9,8 @@ class ResetPasswordDatabase(Database):
         super().__init__()
         init_db()
 
-    async def insert(self, email, token):
-        reset_password = ResetPassword(email, token)
+    async def insert(self, email, token, created_at):
+        reset_password = ResetPassword(email, token, created_at)
         db_session.add(reset_password)
         db_session.commit()
 
