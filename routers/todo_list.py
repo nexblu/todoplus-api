@@ -1,5 +1,8 @@
 from flask import Blueprint, request, jsonify
 from databases import TodolistDatabase, UserDatabase
+import datetime
+from utils import token_required
+from flask_cors import cross_origin
 
 todo_list_router = Blueprint("api user task", __name__)
 db_todo_list = TodolistDatabase()
@@ -7,13 +10,13 @@ db_user = UserDatabase()
 
 
 @todo_list_router.post("/todoplus/v1/todolist")
+@token_required()
 async def todo_list_add():
     data = request.json
     username = data.get("username")
     task = data.get("task")
-    created_at = data.get("created_at")
     try:
-        await db_todo_list.insert(username, task, created_at)
+        await db_todo_list.insert(username, task)
     except:
         return (
             jsonify(
@@ -37,6 +40,7 @@ async def todo_list_add():
 
 
 @todo_list_router.delete("/todoplus/v1/todolist")
+@token_required()
 async def todo_list_delete():
     data = request.json
     username = data.get("username")
@@ -66,6 +70,7 @@ async def todo_list_delete():
 
 
 @todo_list_router.get("/todoplus/v1/todolist/<string:username>")
+@token_required()
 async def todo_list_get(username):
     user = await db_user.get("username", username=username)
     if user:
@@ -76,6 +81,7 @@ async def todo_list_get(username):
                 "username": todo_list.username,
                 "task": todo_list.task,
                 "is_done": todo_list.is_done,
+                "update_at": todo_list.update_at,
                 "created_at": todo_list.created_at,
             }
             for todo_list in result
@@ -94,6 +100,7 @@ async def todo_list_get(username):
 
 
 @todo_list_router.get("/todoplus/v1/todolist/completed/<string:username>")
+@token_required()
 async def todo_list_get_completed(username):
     user = await db_user.get("username", username=username)
     if user:
@@ -104,6 +111,7 @@ async def todo_list_get_completed(username):
                 "username": todo_list.username,
                 "task": todo_list.task,
                 "is_done": todo_list.is_done,
+                "update_at": todo_list.update_at,
                 "created_at": todo_list.created_at,
             }
             for todo_list in result
@@ -122,6 +130,7 @@ async def todo_list_get_completed(username):
 
 
 @todo_list_router.get("/todoplus/v1/todolist/incomplete/<string:username>")
+@token_required()
 async def todo_list_get_incomplete(username):
     user = await db_user.get("username", username=username)
     if user:
@@ -132,6 +141,7 @@ async def todo_list_get_incomplete(username):
                 "username": todo_list.username,
                 "task": todo_list.task,
                 "is_done": todo_list.is_done,
+                "update_at": todo_list.update_at,
                 "created_at": todo_list.created_at,
             }
             for todo_list in result
@@ -157,7 +167,13 @@ async def todo_list_update_is_done():
     is_done = data.get("is_done")
     task = await db_todo_list.get("id", username=username, id=id)
     if task:
-        await db_todo_list.update("is_done", username=username, id=id, is_done=is_done)
+        await db_todo_list.update(
+            "is_done",
+            username=username,
+            id=id,
+            is_done=is_done,
+            update_at=datetime.datetime.now(datetime.timezone.utc).now(),
+        )
         return (
             jsonify(
                 {
@@ -187,7 +203,13 @@ async def todo_list_update_task():
     new_task = data.get("new_task")
     task = await db_todo_list.get("id", username=username, id=id)
     if task:
-        await db_todo_list.update("task", username=username, id=id, new_task=new_task)
+        await db_todo_list.update(
+            "task",
+            username=username,
+            id=id,
+            new_task=new_task,
+            update_at=datetime.datetime.now(datetime.timezone.utc).now(),
+        )
         return (
             jsonify(
                 {

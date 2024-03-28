@@ -28,6 +28,7 @@ async def login(username, password):
                     "username": result.username,
                     "email": result.email,
                     "password": result.password,
+                    "is_active": result.is_active,
                 },
                 jwt_key,
                 algorithm=algorithm,

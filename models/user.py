@@ -26,9 +26,14 @@ user = Table(
     Column("email", String(collation="C"), unique=True, nullable=False),
     Column("password", String, nullable=False),
     Column(
+        "update_at",
+        Float,
+        default=lambda: datetime.datetime.now(datetime.timezone.utc).timestamp(),
+    ),
+    Column(
         "created_at",
         Float,
-        default=datetime.datetime.now(datetime.timezone.utc).timestamp(),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc).timestamp(),
     ),
     Column("is_active", Boolean, default=False),
 )
