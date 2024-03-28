@@ -2,6 +2,7 @@ from .config import db_session, init_db
 from models import User
 from sqlalchemy import and_, func, or_
 from .database import Database
+import datetime
 
 
 class UserDatabase(Database):
@@ -13,11 +14,7 @@ class UserDatabase(Database):
         username = kwargs.get("username")
         email = kwargs.get("email")
         password = kwargs.get("password")
-        user = User(
-            username,
-            email,
-            password,
-        )
+        user = User(username, email, password)
         db_session.add(user)
         db_session.commit()
 
@@ -49,6 +46,8 @@ class UserDatabase(Database):
     async def update(self, type, **kwargs):
         username = kwargs.get("username")
         password = kwargs.get("password")
+        email = kwargs.get("email")
+        is_active = kwargs.get("is_active")
         new_password = kwargs.get("new_password")
         new_username = kwargs.get("new_username")
         if type == "password":
@@ -68,6 +67,16 @@ class UserDatabase(Database):
                 )
             ).first()
             user.username = new_username
+            db_session.commit()
+        elif type == "is_active":
+            user = User.query.filter(
+                and_(
+                    func.lower(User.username) == username.lower(),
+                    func.lower(User.email) == email.lower(),
+                )
+            ).first()
+            user.is_active = is_active
+            user.update_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
             db_session.commit()
 
     async def delete(self):

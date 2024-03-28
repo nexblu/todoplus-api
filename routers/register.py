@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from databases import UserDatabase
+import traceback
 
 register_router = Blueprint("api user register", __name__)
 db = UserDatabase()
@@ -13,7 +14,8 @@ async def register():
     password = data.get("password")
     try:
         await db.insert(username=username, email=email, password=password)
-    except:
+    except Exception:
+        traceback.print_exc()
         return (
             jsonify(
                 {

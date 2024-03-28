@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, redirect
-from utils import Misc
+from utils import ResetPassword
 import smtplib
 from email.mime.text import MIMEText
 from config import (
@@ -21,7 +21,7 @@ token_db = ResetPasswordDatabase()
     "/todoplus/v1/user/reset/reset-password/<string:token>", methods=["POST", "GET"]
 )
 async def reset_password(token):
-    token_ = await Misc.verify_reset_token(token)
+    token_ = await ResetPassword.verify_reset_token(token)
     user = await db.get("email", email=token_["email"])
     if request.method == "POST":
         password_error = ""
@@ -70,7 +70,7 @@ async def reset_password(token):
 async def email_reset_password():
     data = request.json
     email = data.get("email")
-    token = await Misc.get_reset_token(email)
+    token = await ResetPassword.get_reset_token(email)
     user = await token_db.get("token", email=email, token=token)
     if not user:
         await token_db.insert(email, token)

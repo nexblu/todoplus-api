@@ -2,6 +2,7 @@ from .config import db_session, init_db
 from models import TodoList
 from .database import Database
 from sqlalchemy import func, and_
+import datetime
 
 
 class TodolistDatabase(Database):
@@ -9,8 +10,8 @@ class TodolistDatabase(Database):
         super().__init__()
         init_db()
 
-    async def insert(self, username, task, created_at):
-        todo_list = TodoList(username, task, created_at)
+    async def insert(self, username, task):
+        todo_list = TodoList(username, task)
         db_session.add(todo_list)
         db_session.commit()
 
@@ -79,6 +80,7 @@ class TodolistDatabase(Database):
                 )
             ).first()
             todo.is_done = is_done
+            todo.update_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
             db_session.commit()
         elif type == "task":
             todo = TodoList.query.filter(
@@ -88,4 +90,5 @@ class TodolistDatabase(Database):
                 )
             ).first()
             todo.task = new_task
+            todo.update_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
             db_session.commit()
