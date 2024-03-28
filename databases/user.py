@@ -2,6 +2,7 @@ from .config import db_session, init_db
 from models import User
 from sqlalchemy import and_, func, or_
 from .database import Database
+import datetime
 
 
 class UserDatabase(Database):
@@ -75,6 +76,7 @@ class UserDatabase(Database):
                 )
             ).first()
             user.is_active = is_active
+            user.update_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
             db_session.commit()
 
     async def delete(self):
