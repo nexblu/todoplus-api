@@ -6,7 +6,7 @@ import datetime
 mapper_registry = registry()
 
 
-class ResetPassword:
+class AccountActive:
     query = db_session.query_property()
 
     def __init__(self, email, token):
@@ -17,8 +17,8 @@ class ResetPassword:
         return f"<User {self.email!r}>"
 
 
-reset_password = Table(
-    "reset_password",
+acoount_active = Table(
+    "acoount_active",
     metadata,
     Column("id", Integer, primary_key=True),
     Column(
@@ -31,8 +31,7 @@ reset_password = Table(
     Column(
         "expired_at",
         Float,
-        default=lambda: datetime.datetime.now(datetime.timezone.utc).timestamp()
-        + datetime.timedelta(hours=7),
+        default=lambda: (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=7)).timestamp(),
     ),
     Column(
         "created_at",
@@ -41,4 +40,4 @@ reset_password = Table(
     ),
 )
 
-mapper_registry.map_imperatively(ResetPassword, reset_password)
+mapper_registry.map_imperatively(AccountActive, acoount_active)

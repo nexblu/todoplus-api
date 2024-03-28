@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, request
 from databases import UserDatabase
+from utils import token_required
 
 user_router = Blueprint("api user", __name__)
 db = UserDatabase()
 
 
 @user_router.get("/todoplus/v1/user/email/<string:email>")
+@token_required()
 async def user_email(email):
     result = await db.get("email", email=email)
     if result:
@@ -31,6 +33,7 @@ async def user_email(email):
 
 
 @user_router.put("/todoplus/v1/user/username")
+@token_required()
 async def update_username():
     data = request.json
     username = data.get("username")
@@ -66,6 +69,7 @@ async def update_username():
 
 
 @user_router.put("/todoplus/v1/user/password")
+@token_required()
 async def update_password():
     data = request.json
     username = data.get("username")

@@ -70,11 +70,10 @@ async def reset_password(token):
 async def email_reset_password():
     data = request.json
     email = data.get("email")
-    created_at = data.get("created_at")
     token = await ResetPassword.get_reset_token(email)
     user = await token_db.get("token", email=email, token=token)
     if not user:
-        await token_db.insert(email, token, created_at)
+        await token_db.insert(email, token)
     msg = MIMEText(
         f"""<h1>Hi, Welcome {email}</h1>
 
