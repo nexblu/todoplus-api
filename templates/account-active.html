@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Active</title>
+    <link rel="shortcut icon" href={{ url_for('static', filename='img/Screenshot_2024-03-10_23-25-16-removebg-preview.png') }} type="image/x-icon">
+    <script src="https://kit.fontawesome.com/cdf7b08825.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="container mx-auto max-w-full bg-gray-50 min-h-screen text-center">
+      <br>
+      <br>
+      <br>
+      <section class="border-0 bg-[#212529] mx-[20%] rounded-md text-lime-50 font-bold">
+        <div class="border-0 mx-auto rounded-md bg-[#0B5ED7] flex justify-center items-center">
+          <img src="{{ url_for('static', filename='img/Black_Circle_Icon_Internet_Logo-removebg-preview.png') }}" alt="todoplus" class="w-20 h-20 text-center">
+        </div>
+        <h1 class="pt-3 pb-3">Your Account Is Active</h1><br>
+        <i class="fa-solid fa-circle-check text-[100px] mb-3"></i><br><br><br><br>
+        <a href="{{ url }}">
+          <button class="rounded-full bg-[#0B5ED7] text-sm/[5px] px-7 py-3 mb-3">Back Login</button>
+        </a>
+      </section>
+    </div>
+  </body>
+</html>
