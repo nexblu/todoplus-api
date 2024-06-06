@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from models import TodoListDatabase
+from models import TodoListDatabase, UserDatabase
 from .database import Database
 from sqlalchemy import func, and_, desc
 import datetime
@@ -62,68 +62,32 @@ class TodolistCRUD(Database):
                 return
             raise TaskNotFound
 
-    async def get(self, type, **kwargs):
-        username = kwargs.get("username")
-        id = kwargs.get("id")
-        if type == "username":
-            return (
-                TodoListDatabase.query.filter(
-                    func.lower(TodoListDatabase.username) == username.lower()
-                )
-                .order_by(TodoListDatabase.created_at)
-                .all()
-            )
-        elif type == "id":
-            return TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
-                )
-            ).first()
-        elif type == "completed":
-            return (
-                TodoListDatabase.query.filter(
+    async def get(self, category, **kwargs):
+        user_id = kwargs.get("user_id")
+        if category == "is-done":
+            if (
+                data := TodoListDatabase.query.filter(
                     and_(
-                        func.lower(TodoListDatabase.username) == username.lower(),
+                        TodoListDatabase.user_id == user_id,
                         TodoListDatabase.is_done == True,
                     )
                 )
-                .order_by(TodoListDatabase.created_at)
+                .order_by(desc(TodoListDatabase.created_at))
                 .all()
-            )
-        elif type == "inclomplete":
-            return (
-                TodoListDatabase.query.filter(
-                    and_(
-                        func.lower(TodoListDatabase.username) == username.lower(),
-                        TodoListDatabase.is_done == False,
-                    )
-                )
-                .order_by(TodoListDatabase.created_at)
+            ):
+                return data
+            raise TaskNotFound
+        elif category == "all":
+            if (
+                data := db_session.query(UserDatabase, TodoListDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .filter(UserDatabase.id == user_id)
+                .order_by(desc(TodoListDatabase.created_at))
                 .all()
-            )
-        elif type == "bookmark":
-            return (
-                TodoListDatabase.query.filter(
-                    and_(
-                        func.lower(TodoListDatabase.username) == username.lower(),
-                        TodoListDatabase.bookmark == True,
-                    )
-                )
-                .order_by(TodoListDatabase.created_at)
-                .all()
-            )
-        elif type == "pinned":
-            return (
-                TodoListDatabase.query.filter(
-                    and_(
-                        func.lower(TodoListDatabase.username) == username.lower(),
-                        TodoListDatabase.is_pin == True,
-                    )
-                )
-                .order_by(TodoListDatabase.created_at)
-                .all()
-            )
+            ):
+                return data
+            raise TaskNotFound
 
     async def update(self, type, **kwargs):
         username = kwargs.get("username")
