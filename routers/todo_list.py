@@ -61,6 +61,7 @@ async def todo_list_get():
                 {
                     "status_code": 404,
                     "message": f"task {user.username!r} not found",
+                    "result": None,
                 }
             ),
             404,
