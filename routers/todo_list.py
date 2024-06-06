@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from databases import TodolistCRUD
-from utils import token_required
+from utils import token_required, TaskNotFound
 import datetime
 import traceback
 from sqlalchemy.exc import IntegrityError, DataError
@@ -40,6 +40,38 @@ async def todo_list_add():
                 {
                     "status_code": 201,
                     "message": f"success create task {task!r}",
+                }
+            ),
+            201,
+        )
+
+
+@todo_list_router.delete("/todoplus/v1/todolist")
+@token_required()
+async def todo_list_delete():
+    user = request.user
+    try:
+        await todo_list_database.delete(
+            "clear",
+            user_id=user.id,
+            email=user.email,
+        )
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success clear task",
                 }
             ),
             201,

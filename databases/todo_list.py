@@ -1,9 +1,10 @@
 from .config import db_session, init_db
 from models import TodoListDatabase
 from .database import Database
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, desc
 import datetime
 from .user import UserCRUD
+from utils import TaskNotFound
 
 
 class TaskNotFoundError(Exception):
@@ -40,54 +41,26 @@ class TodolistCRUD(Database):
         )
         return todo_list
 
-    async def delete(self, type, **kwargs):
-        username = kwargs.get("username")
-        id = kwargs.get("id")
-        tags = kwargs.get("tags")
-        if type == "task":
-            todo = TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
+    async def delete(self, category, **kwargs):
+        user_id = kwargs.get("user_id")
+        email = kwargs.get("email")
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        if category == "clear":
+            if (
+                data := TodoListDatabase.query.filter(
+                    TodoListDatabase.user_id == user_id
                 )
-            ).first()
-            if todo:
-                db_session.delete(todo)
-                db_session.commit()
-            else:
-                raise TaskNotFoundError(f"task {id} not found")
-        elif type == "username":
-            todos = (
-                TodoListDatabase.query.filter(
-                    func.lower(TodoListDatabase.username) == username.lower()
-                )
-                .order_by(TodoListDatabase.created_at)
+                .order_by(desc(TodoListDatabase.created_at))
                 .all()
-            )
-            if todos:
-                for todo in todos:
-                    db_session.delete(todo)
+            ):
+                for d in data:
+                    db_session.delete(d)
                 db_session.commit()
-            else:
-                raise TaskNotFoundError(f"user {username!r} not found")
-        elif type == "tags":
-            todo = TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, email=email
                 )
-            ).first()
-            if not todo:
-                raise TaskNotFoundError(f"task {id} not found")
-            else:
-                data_tags = todo.tags[:]
-                for tag in tags:
-                    if tag in data_tags:
-                        data_tags.remove(tag)
-                    else:
-                        raise InvalidTags(f"Tag {tag} not found")
-                todo.tags = data_tags
-                db_session.commit()
+                return
+            raise TaskNotFound
 
     async def get(self, type, **kwargs):
         username = kwargs.get("username")
