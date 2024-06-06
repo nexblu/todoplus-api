@@ -16,9 +16,11 @@ mapper_registry = registry()
 class ResetPasswordDatabase:
     query = db_session.query_property()
 
-    def __init__(self, user_id, token):
+    def __init__(self, user_id, token, created_at, expired_at):
         self.user_id = user_id
         self.token = token
+        self.created_at = created_at
+        self.expired_at = expired_at
 
     def __repr__(self):
         return f"<Reset Password '{self.user_id}'>"
