@@ -3,6 +3,7 @@ from databases import TodolistCRUD
 from utils import token_required
 import datetime
 import traceback
+from sqlalchemy.exc import IntegrityError, DataError
 
 todo_list_router = Blueprint("api user task", __name__)
 todo_list_database = TodolistCRUD()
@@ -23,12 +24,12 @@ async def todo_list_add():
             tags,
             datetime.datetime.now(datetime.timezone.utc).timestamp(),
         )
-    except Exception:
+    except (IntegrityError, DataError):
         return (
             jsonify(
                 {
                     "status_code": 400,
-                    "message": f"bad request",
+                    "message": f"data is invalid",
                 }
             ),
             400,
