@@ -58,6 +58,11 @@ user_table = Table(
     Column("unbanned_at", Float, nullable=True),
     Column("is_active", Boolean, default=False),
     Column("is_admin", Boolean, default=False),
+    Column(
+        "avatar_url",
+        String,
+        default="https://images-ext-1.discordapp.net/external/-lSg4fwfxBafHkIEYKTxSegjgwU_dH1QLzzth1Cumew/https/t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg?format=webp",
+    ),
     CheckConstraint("length(username) > 0", name="non_empty_username"),
     CheckConstraint("length(email) > 0", name="non_empty_email"),
     CheckConstraint("length(password) > 0", name="non_empty_password"),
