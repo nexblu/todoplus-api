@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 from config import debug_mode, mongodb_url
 from databases import db_session
@@ -14,6 +14,7 @@ from utils import (
     handle_405,
 )
 from routers.register import register_router
+from routers.login import login_router
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -41,6 +42,7 @@ async def checkin_db(exception=None):
 
 
 app.register_blueprint(register_router)
+app.register_blueprint(login_router)
 
 
 if __name__ == "__main__":

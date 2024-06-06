@@ -57,6 +57,7 @@ user_table = Table(
     Column("banned_at", Float, nullable=True),
     Column("unbanned_at", Float, nullable=True),
     Column("is_active", Boolean, default=False),
+    Column("is_admin", Boolean, default=False),
     CheckConstraint("length(username) > 0", name="non_empty_username"),
     CheckConstraint("length(email) > 0", name="non_empty_email"),
     CheckConstraint("length(password) > 0", name="non_empty_password"),

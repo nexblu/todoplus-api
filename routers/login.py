@@ -11,13 +11,13 @@ bcrypt = Bcrypt()
 user_database = UserCRUD()
 
 
-@login_router.post("/fidea/v1/user/login")
+@login_router.post("/todoplus/v1/user/login")
 async def login():
     data = request.json
     email = data.get("email")
     password = data.get("password")
     try:
-        user = await user_database.get("login", email=email, password=password)
+        user = await user_database.get("email", email=email)
     except UserNotFound:
         return (
             jsonify(
