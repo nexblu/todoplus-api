@@ -9,7 +9,7 @@ from config import (
     smtp_server,
     smtp_port,
     api_url,
-    fidea_url,
+    todoplus_url,
 )
 import datetime
 import traceback
@@ -20,7 +20,7 @@ account_active_database = AccountActiveCRUD()
 user_database = UserCRUD()
 
 
-@account_active_router.get("/fidea/v1/user/email-verify/<string:token>")
+@account_active_router.get("/todoplus/v1/user/email-verify/<string:token>")
 async def account_active(token):
     if valid_token := await AccountActive.get(token):
         try:
@@ -48,11 +48,11 @@ async def account_active(token):
                 await account_active_database.delete(
                     "user_id", user_id=user_token_database.user_id
                 )
-                return render_template("email_active.html", url=fidea_url)
+                return render_template("email_active.html", url=todoplus_url)
     return render_template("not_found.html")
 
 
-@account_active_router.post("/fidea/v1/user/email-verify")
+@account_active_router.post("/todoplus/v1/user/email-verify")
 async def account_active_email():
     data = request.json
     email = data.get("email")
@@ -63,7 +63,7 @@ async def account_active_email():
             jsonify(
                 {
                     "status_code": 404,
-                    "message": f"user {email} not found",
+                    "message": f"user not found",
                 }
             ),
             404,
@@ -106,7 +106,7 @@ async def account_active_email():
                 f"""<h1>Hi, Welcome {email}</h1>
 
 <p>Di Sini Kami Telah Mengirimkan Anda Untuk Verif Account: </p>
-<a href={api_url}/fidea/v1/user/email-verify/{token}>Click Ini Untuk Verify Email</a>
+<a href={api_url}/todoplus/v1/user/email-verify/{token}>Click Ini Untuk Verify Email</a>
 """,
                 "html",
             )

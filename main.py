@@ -15,6 +15,8 @@ from utils import (
 )
 from routers.register import register_router
 from routers.login import login_router
+from routers.todo_list import todo_list_router
+from routers.account_active import account_active_router
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -43,6 +45,8 @@ async def checkin_db(exception=None):
 
 app.register_blueprint(register_router)
 app.register_blueprint(login_router)
+app.register_blueprint(todo_list_router)
+app.register_blueprint(account_active_router)
 
 
 if __name__ == "__main__":

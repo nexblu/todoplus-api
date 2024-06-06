@@ -27,10 +27,9 @@ def token_required():
 
                 user_database = UserCRUD()
                 try:
-                    user = await user_database.get("login", email=user_decoded["email"])
+                    user = await user_database.get("email", email=user_decoded["email"])
                 except:
                     abort(401)
-
                 if not (
                     user.is_active
                     and user.unbanned_at is None

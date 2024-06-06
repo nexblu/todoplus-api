@@ -3,6 +3,7 @@ from models import TodoListDatabase
 from .database import Database
 from sqlalchemy import func, and_
 import datetime
+from .user import UserCRUD
 
 
 class TaskNotFoundError(Exception):
@@ -27,11 +28,16 @@ class TodolistCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
+        self.user_database = UserCRUD()
 
-    async def insert(self, username, task, tags, date):
-        todo_list = TodoListDatabase(username, task, tags, date)
+    async def insert(self, user_id, email, task, tags, date):
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        todo_list = TodoListDatabase(user_id, task, tags, date, created_at, created_at)
         db_session.add(todo_list)
         db_session.commit()
+        await self.user_database.update(
+            "updated_at", updated_at=created_at, email=email
+        )
         return todo_list
 
     async def delete(self, type, **kwargs):

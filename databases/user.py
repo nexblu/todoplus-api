@@ -29,8 +29,29 @@ class UserCRUD(Database):
                 return user
             raise UserNotFound
 
-    async def update(self, type, **kwargs):
-        pass
+    async def update(self, category, **kwargs):
+        email = kwargs.get("email")
+        is_active = kwargs.get("is_active")
+        updated_at = kwargs.get("updated_at")
+        if category == "is_active":
+            if user := UserDatabase.query.filter(
+                func.lower(UserDatabase.email) == email.lower()
+            ).first():
+                user.is_active = is_active
+                user.updated_at = datetime.datetime.now(
+                    datetime.timezone.utc
+                ).timestamp()
+                db_session.commit()
+                return
+            raise UserNotFound
+        elif category == "updated_at":
+            if user := UserDatabase.query.filter(
+                func.lower(UserDatabase.email) == email.lower()
+            ).first():
+                user.updated_at = updated_at
+                db_session.commit()
+                return
+            raise UserNotFound
 
-    async def delete(self):
+    async def delete(self, category, **kwargs):
         pass
