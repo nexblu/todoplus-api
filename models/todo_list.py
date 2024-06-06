@@ -6,63 +6,26 @@ from sqlalchemy import (
     Boolean,
     Float,
     ForeignKey,
-    JSON,
-    Date,
+    CheckConstraint,
 )
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
-import datetime
+from sqlalchemy.dialects.postgresql import JSONB
 
 mapper_registry = registry()
 
 
-class UsernameRequired(Exception):
-    def __init__(self, message="username is required"):
-        self.message = message
-        super().__init__(self.message)
-
-
-class TaskRequired(Exception):
-    def __init__(self, message="task is required"):
-        self.message = message
-        super().__init__(self.message)
-
-
-class TagsList(Exception):
-    def __init__(self, message="tags must be list"):
-        self.message = message
-        super().__init__(self.message)
-
-
-class MaxTags5(Exception):
-    def __init__(self, message="max tags is 5"):
-        self.message = message
-        super().__init__(self.message)
-
-
-class TodoList:
+class TodoListDatabase:
     query = db_session.query_property()
 
-    def __init__(self, username, task, tags, date):
-        if username_space := username.isspace() or not username:
-            raise UsernameRequired
-        else:
-            self.username = username
-        if task_space := task.isspace() or not task:
-            raise TaskRequired
-        else:
-            self.task = task
-        if not isinstance(tags, list):
-            raise TagsList
-        else:
-            if len(tags) > 5:
-                raise MaxTags5
-            else:
-                self.tags = tags
+    def __init__(self, user_id, task, tags, date):
+        self.user_id = user_id
+        self.task = task
+        self.tags = tags
         self.date = date
 
     def __repr__(self):
-        return f"<User {self.username!r}>"
+        return f"<TodoList '{self.user_id}'>"
 
 
 todo_list_table = Table(
@@ -70,27 +33,27 @@ todo_list_table = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column(
-        "username",
-        String(collation="C"),
-        ForeignKey("user.username", ondelete="CASCADE"),
+        "user_id",
+        Integer,
+        ForeignKey("user.id", ondelete="CASCADE"),
         nullable=False,
     ),
     Column("task", String, nullable=False),
-    Column("tags", JSON, nullable=True),
-    Column("date", Date, nullable=True),
-    Column(
-        "update_at",
-        Float,
-        default=lambda: datetime.datetime.now(datetime.timezone.utc).timestamp(),
-    ),
-    Column(
-        "created_at",
-        Float,
-        default=lambda: datetime.datetime.now(datetime.timezone.utc).timestamp(),
-    ),
+    Column("date", Float, nullable=False),
+    Column("tags", JSONB, default=[]),
+    Column("updated_at", Float, nullable=False),
+    Column("created_at", Float, nullable=False),
     Column("is_pin", Boolean, default=False),
     Column("bookmark", Boolean, default=False),
     Column("is_done", Boolean, default=False),
+    CheckConstraint("user_id >= 0", name="positive_user_id"),
+    CheckConstraint("length(task) > 0", name="non_empty_task"),
+    CheckConstraint("date > 0", name="positive_date"),
+    CheckConstraint(
+        "jsonb_array_length(tags) BETWEEN 1 AND 5", name="tags_length_between_1_and_5"
+    ),
+    CheckConstraint("updated_at >= 0", name="positive_updated_at"),
+    CheckConstraint("created_at >= 0", name="positive_created_at"),
 )
 
-mapper_registry.map_imperatively(TodoList, todo_list_table)
+mapper_registry.map_imperatively(TodoListDatabase, todo_list_table)
