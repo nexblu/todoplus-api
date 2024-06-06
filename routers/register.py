@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from flask_bcrypt import Bcrypt
 from databases import UserCRUD
 from sqlalchemy.exc import IntegrityError
-import traceback
 from utils import EmailNotValid
 
 register_router = Blueprint("api user register", __name__)
