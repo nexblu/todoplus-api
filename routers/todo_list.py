@@ -128,6 +128,51 @@ async def todo_list_delete():
         )
 
 
+@todo_list_router.get("/todoplus/v1/todolist/<int:task_id>")
+@token_required()
+async def todo_list_get_task_id(task_id):
+    user = request.user
+    try:
+        data = await todo_list_database.get("task_id", user_id=user.id, task_id=task_id)
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                    "result": None,
+                }
+            ),
+            404,
+        )
+    else:
+        author, todo_list = data
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "message": f"data '{user.username!r}' was found",
+                    "result": {
+                        "task": {
+                            "user_id": author.id,
+                            "username": author.username,
+                            "task_id": todo_list.id,
+                            "task": todo_list.task,
+                            "date": todo_list.date,
+                            "tags": todo_list.tags,
+                            "is_done": todo_list.is_done,
+                            "is_pin": todo_list.is_pin,
+                            "bookmark": todo_list.bookmark,
+                            "updated_at": todo_list.updated_at,
+                            "created_at": todo_list.created_at,
+                        }
+                    },
+                }
+            ),
+            200,
+        )
+
+
 @todo_list_router.put("/todoplus/v1/todolist/is-done")
 @token_required()
 async def todo_list_update_is_done():

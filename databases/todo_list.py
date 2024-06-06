@@ -64,6 +64,7 @@ class TodolistCRUD(Database):
 
     async def get(self, category, **kwargs):
         user_id = kwargs.get("user_id")
+        task_id = kwargs.get("task_id")
         if category == "is-done":
             if (
                 data := db_session.query(UserDatabase, TodoListDatabase)
@@ -83,6 +84,19 @@ class TodolistCRUD(Database):
                 .filter(UserDatabase.id == user_id)
                 .order_by(desc(TodoListDatabase.created_at))
                 .all()
+            ):
+                return data
+            raise TaskNotFound
+        elif category == "task_id":
+            if (
+                data := db_session.query(UserDatabase, TodoListDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .filter(
+                    and_(UserDatabase.id == user_id, TodoListDatabase.id == task_id)
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .first()
             ):
                 return data
             raise TaskNotFound
