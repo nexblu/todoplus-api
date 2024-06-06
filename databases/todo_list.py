@@ -90,95 +90,95 @@ class TodolistCRUD(Database):
             raise TaskNotFound
 
     async def update(self, type, **kwargs):
-        username = kwargs.get("username")
-        id = kwargs.get("id")
-        new_task = kwargs.get("new_task")
-        if type == "is_done":
+        user_id = kwargs.get("user_id")
+        is_done = kwargs.get("is_done")
+        email = kwargs.get("email")
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        if type == "is-done":
             if todo := TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
-                )
-            ).first():
-                todo.is_done = not todo.is_done
-                todo.update_at = datetime.datetime.now(
-                    datetime.timezone.utc
-                ).timestamp()
+                TodoListDatabase.user_id == user_id
+            ).all():
+                for data in todo:
+                    data.is_done = is_done
+                    data.updated_at = created_at
                 db_session.commit()
-            else:
-                raise TaskNotFoundError(f"task {id} not found")
-        elif type == "bookmark":
-            if todo := TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, email=email
                 )
-            ).first():
-                todo.bookmark = not todo.bookmark
-                todo.update_at = datetime.datetime.now(
-                    datetime.timezone.utc
-                ).timestamp()
-                db_session.commit()
-                return todo
-            else:
-                raise TaskNotFoundError(f"task {id} not found")
-        elif type == "task":
-            if todo := TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
-                )
-            ).first():
-                todo.task = new_task
-                todo.update_at = datetime.datetime.now(
-                    datetime.timezone.utc
-                ).timestamp()
-                db_session.commit()
-            else:
-                raise TaskNotFoundError(f"task {id} not found")
-        elif type == "pinned":
-            todo = TodoListDatabase.query.filter(
-                and_(
-                    func.lower(TodoListDatabase.username) == username.lower(),
-                    TodoListDatabase.id == id,
-                )
-            ).all()
-            if todo:
-                todo_is_pin = TodoListDatabase.query.filter(
-                    and_(
-                        func.lower(TodoListDatabase.username) == username.lower(),
-                        TodoListDatabase.id == id,
-                        TodoListDatabase.is_pin == True,
-                    )
-                ).all()
-                if todo_is_pin:
-                    if len(todo_is_pin) < 3:
-                        for i in todo:
-                            if i.id == id:
-                                i.is_pin = not i.is_pin
-                                i.update_at = datetime.datetime.now(
-                                    datetime.timezone.utc
-                                ).timestamp()
-                                db_session.commit()
-                    else:
-                        raise MaxPinned3
-                else:
-                    pinned_tasks_count = TodoListDatabase.query.filter(
-                        and_(
-                            func.lower(TodoListDatabase.username) == username.lower(),
-                            TodoListDatabase.is_pin == True,
-                        )
-                    ).count()
+                return
+            raise TaskNotFound
+        # elif type == "bookmark":
+        #     if todo := TodoListDatabase.query.filter(
+        #         and_(
+        #             func.lower(TodoListDatabase.username) == username.lower(),
+        #             TodoListDatabase.id == id,
+        #         )
+        #     ).first():
+        #         todo.bookmark = not todo.bookmark
+        #         todo.update_at = datetime.datetime.now(
+        #             datetime.timezone.utc
+        #         ).timestamp()
+        #         db_session.commit()
+        #         return todo
+        #     else:
+        #         raise TaskNotFoundError(f"task {id} not found")
+        # elif type == "task":
+        #     if todo := TodoListDatabase.query.filter(
+        #         and_(
+        #             func.lower(TodoListDatabase.username) == username.lower(),
+        #             TodoListDatabase.id == id,
+        #         )
+        #     ).first():
+        #         todo.task = new_task
+        #         todo.update_at = datetime.datetime.now(
+        #             datetime.timezone.utc
+        #         ).timestamp()
+        #         db_session.commit()
+        #     else:
+        #         raise TaskNotFoundError(f"task {id} not found")
+        # elif type == "pinned":
+        #     todo = TodoListDatabase.query.filter(
+        #         and_(
+        #             func.lower(TodoListDatabase.username) == username.lower(),
+        #             TodoListDatabase.id == id,
+        #         )
+        #     ).all()
+        #     if todo:
+        #         todo_is_pin = TodoListDatabase.query.filter(
+        #             and_(
+        #                 func.lower(TodoListDatabase.username) == username.lower(),
+        #                 TodoListDatabase.id == id,
+        #                 TodoListDatabase.is_pin == True,
+        #             )
+        #         ).all()
+        #         if todo_is_pin:
+        #             if len(todo_is_pin) < 3:
+        #                 for i in todo:
+        #                     if i.id == id:
+        #                         i.is_pin = not i.is_pin
+        #                         i.update_at = datetime.datetime.now(
+        #                             datetime.timezone.utc
+        #                         ).timestamp()
+        #                         db_session.commit()
+        #             else:
+        #                 raise MaxPinned3
+        #         else:
+        #             pinned_tasks_count = TodoListDatabase.query.filter(
+        #                 and_(
+        #                     func.lower(TodoListDatabase.username) == username.lower(),
+        #                     TodoListDatabase.is_pin == True,
+        #                 )
+        #             ).count()
 
-                    if pinned_tasks_count < 3:
-                        for i in todo:
-                            if i.id == id:
-                                i.is_pin = not i.is_pin
-                                i.update_at = datetime.datetime.now(
-                                    datetime.timezone.utc
-                                ).timestamp()
-                                db_session.commit()
-                    else:
-                        raise MaxPinned3
-            else:
-                raise TaskNotFoundError(f"task {id} not found")
+        #             if pinned_tasks_count < 3:
+        #                 for i in todo:
+        #                     if i.id == id:
+        #                         i.is_pin = not i.is_pin
+        #                         i.update_at = datetime.datetime.now(
+        #                             datetime.timezone.utc
+        #                         ).timestamp()
+        #                         db_session.commit()
+        #             else:
+        #                 raise MaxPinned3
+        #     else:
+        #         raise TaskNotFoundError(f"task {id} not found")

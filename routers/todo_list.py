@@ -128,34 +128,33 @@ async def todo_list_delete():
         )
 
 
-# @todo_list_router.get("/todoplus/v1/todolist/is-done")
-# @token_required()
-# async def todo_list_get():
-#     user = request.user
-#     try:
-#         result = await todo_list_database.get(
-#             "is-done",
-#             user_id=user.id,
-#         )
-#     except TaskNotFound:
-#         return (
-#             jsonify(
-#                 {
-#                     "status_code": 404,
-#                     "message": f"task {user.username!r} not found",
-#                     "result": None,
-#                 }
-#             ),
-#             404,
-#         )
-#     else:
-#         return (
-#             jsonify(
-#                 {
-#                     "status_code": 201,
-#                     "message": f"data {user.username!r} was found",
-#                     "result": None,
-#                 }
-#             ),
-#             201,
-#         )
+@todo_list_router.put("/todoplus/v1/todolist/is-done")
+@token_required()
+async def todo_list_update_is_done():
+    data = request.json
+    user = request.user
+    is_done = data.get("is_done")
+    try:
+        await todo_list_database.update(
+            "is-done", user_id=user.id, is_done=is_done, email=user.email
+        )
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success update mark task {user.username!r}",
+                }
+            ),
+            201,
+        )
