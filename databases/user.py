@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from models import User
+from models import UserDatabase
 from sqlalchemy import and_, func, or_
 from .database import Database
 import datetime
@@ -17,7 +17,7 @@ class PasswordRequired(Exception):
         super().__init__(self.message)
 
 
-class UserDatabase(Database):
+class UserCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
@@ -26,7 +26,8 @@ class UserDatabase(Database):
         username = kwargs.get("username")
         email = kwargs.get("email")
         password = kwargs.get("password")
-        user = User(username, email, password)
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        user = UserDatabase(username, email, password, created_at, created_at)
         db_session.add(user)
         db_session.commit()
 
@@ -35,23 +36,25 @@ class UserDatabase(Database):
         email = kwargs.get("email")
         password = kwargs.get("password")
         if type == "email":
-            return User.query.filter(func.lower(User.email) == email.lower()).first()
+            return UserDatabase.query.filter(
+                func.lower(UserDatabase.email) == email.lower()
+            ).first()
         elif type == "username":
-            return User.query.filter(
-                func.lower(User.username) == username.lower()
+            return UserDatabase.query.filter(
+                func.lower(UserDatabase.username) == username.lower()
             ).first()
         elif type == "login":
-            return User.query.filter(
+            return UserDatabase.query.filter(
                 and_(
-                    func.lower(User.username) == username.lower(),
-                    User.password == password,
+                    func.lower(UserDatabase.username) == username.lower(),
+                    UserDatabase.password == password,
                 )
             ).first()
         elif type == "register":
-            return User.query.filter(
+            return UserDatabase.query.filter(
                 or_(
-                    func.lower(User.username) == username.lower(),
-                    func.lower(User.email) == email.lower(),
+                    func.lower(UserDatabase.username) == username.lower(),
+                    func.lower(UserDatabase.email) == email.lower(),
                 )
             ).first()
 
@@ -65,10 +68,10 @@ class UserDatabase(Database):
         if type == "password":
             if new_password_space := username.isspace() or not new_password:
                 raise PasswordRequired
-            if user := User.query.filter(
+            if user := UserDatabase.query.filter(
                 and_(
-                    func.lower(User.username) == username.lower(),
-                    User.password == password,
+                    func.lower(UserDatabase.username) == username.lower(),
+                    UserDatabase.password == password,
                 )
             ).first():
                 user.password = new_password
@@ -79,10 +82,10 @@ class UserDatabase(Database):
             else:
                 raise UserNotFoundError
         elif type == "username":
-            if user := User.query.filter(
+            if user := UserDatabase.query.filter(
                 and_(
-                    func.lower(User.username) == username.lower(),
-                    User.password == password,
+                    func.lower(UserDatabase.username) == username.lower(),
+                    UserDatabase.password == password,
                 )
             ).first():
                 user.username = new_username
@@ -93,9 +96,9 @@ class UserDatabase(Database):
             else:
                 raise UserNotFoundError
         elif type == "is_active":
-            if user := User.query.filter(
+            if user := UserDatabase.query.filter(
                 and_(
-                    func.lower(User.email) == email.lower(),
+                    func.lower(UserDatabase.email) == email.lower(),
                 )
             ).first():
                 user.is_active = is_active

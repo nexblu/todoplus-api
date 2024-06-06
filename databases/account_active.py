@@ -1,46 +1,52 @@
 from .config import db_session, init_db
-from models import AccountActive
+from models import AccountActiveDatabase
 from .database import Database
-from sqlalchemy import func, and_
+from sqlalchemy import and_, desc
+from utils import UserNotFound
+import datetime
 
 
-class AccountActiveDatabase(Database):
+class AccountActiveCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
 
-    async def insert(self, email, token):
-        reset_password = AccountActive(email, token)
+    async def insert(self, user_id, token, created_at, expired_at):
+        reset_password = AccountActiveDatabase(user_id, token, created_at, expired_at)
         db_session.add(reset_password)
         db_session.commit()
 
-    async def delete(self, type, **kwargs):
-        email = kwargs.get("email")
-        if type == "email":
-            user_token = AccountActive.query.filter(
-                func.lower(AccountActive.email) == email.lower()
-            ).first()
-            db_session.delete(user_token)
-            db_session.commit()
-
-    async def get(self, type, **kwargs):
-        email = kwargs.get("email")
-        token = kwargs.get("token")
-        if type == "email":
-            return (
-                AccountActive.query.filter(
-                    func.lower(AccountActive.email) == email.lower()
+    async def delete(self, category, **kwargs):
+        user_id = kwargs.get("user_id")
+        if category == "user_id":
+            if user_token := (
+                AccountActiveDatabase.query.filter(
+                    AccountActiveDatabase.user_id == user_id
                 )
-                .order_by(AccountActive.created_at)
+                .order_by(desc(AccountActiveDatabase.created_at))
                 .first()
-            )
-        elif type == "token":
-            return AccountActive.query.filter(
-                and_(
-                    func.lower(AccountActive.email) == email.lower(),
-                    AccountActive.token == token,
-                )
-            ).first()
+            ):
+                db_session.delete(user_token)
+                db_session.commit()
 
-    async def update(self, type, **kwargs):
+    async def get(self, category, **kwargs):
+        token = kwargs.get("token")
+        user_id = kwargs.get("user_id")
+        if category == "token":
+            if (
+                token := AccountActiveDatabase.query.filter(
+                    and_(
+                        AccountActiveDatabase.user_id == user_id,
+                        AccountActiveDatabase.token == token,
+                        datetime.datetime.now(datetime.timezone.utc).timestamp()
+                        < AccountActiveDatabase.expired_at,
+                    )
+                )
+                .order_by(desc(AccountActiveDatabase.created_at))
+                .first()
+            ):
+                return token
+            raise UserNotFound
+
+    async def update(self, category, **kwargs):
         pass

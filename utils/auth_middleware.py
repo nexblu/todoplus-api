@@ -1,10 +1,8 @@
 from functools import wraps
-from flask import request, jsonify, abort
-from databases import UserDatabase
+from flask import request, abort
 import jwt
-from config import jwt_key, algorithm
-
-db = UserDatabase()
+from config import access_token_key, algorithm
+import datetime
 
 
 def token_required():
@@ -15,26 +13,48 @@ def token_required():
             try:
                 token = authorization_header["Authorization"].split(" ")[1]
             except:
-                return (
-                    jsonify({"error": "Authorization header is missing or invalid"}),
-                    401,
-                )
+                abort(401)
             try:
-                user = jwt.decode(token, jwt_key, algorithms=[algorithm])
+                user_decoded = jwt.decode(
+                    token, access_token_key, algorithms=[algorithm]
+                )
             except jwt.exceptions.DecodeError:
-                return (
-                    jsonify({"error": "Authorization token is invalid"}),
-                    401,
-                )
+                abort(401)
+            except jwt.exceptions.ExpiredSignatureError:
+                abort(401)
             else:
-                if result := await db.get(
-                    "login", username=user["username"], password=user["password"]
+                from databases import UserCRUD
+
+                user_database = UserCRUD()
+                try:
+                    user = await user_database.get("login", email=user_decoded["email"])
+                except:
+                    abort(401)
+
+                if not (
+                    user.is_active
+                    and user.unbanned_at is None
+                    and user.banned_at is None
                 ):
-                    return await f(*args, **kwargs)
-                return (
-                    jsonify({"error": "Authorization Invalid"}),
-                    401,
-                )
+                    if not user.is_active or user.unbanned_at:
+                        try:
+                            if (
+                                user.unbanned_at
+                                < datetime.datetime.now(
+                                    datetime.timezone.utc
+                                ).timestamp()
+                            ):
+                                abort(403)
+                            else:
+                                await user_database.update(
+                                    "unbanned", unbanned_at=None, email=user.email
+                                )
+                        except:
+                            abort(403)
+                    abort(403)
+
+                request.user = user
+                return await f(*args, **kwargs)
 
         return __token_required
 

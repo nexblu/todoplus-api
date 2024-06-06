@@ -4,7 +4,16 @@ from config import debug_mode, mongodb_url
 from databases import db_session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from utils import handle_404, handle_415, handle_429, handle_400
+from utils import (
+    handle_404,
+    handle_415,
+    handle_429,
+    handle_400,
+    handle_401,
+    handle_403,
+    handle_405,
+)
+from routers.register import register_router
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -29,6 +38,9 @@ async def shutdown_session(exception=None):
 @app.teardown_request
 async def checkin_db(exception=None):
     db_session.remove()
+
+
+app.register_blueprint(register_router)
 
 
 if __name__ == "__main__":

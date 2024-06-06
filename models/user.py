@@ -11,10 +11,12 @@ mapper_registry = registry()
 class UserDatabase:
     query = db_session.query_property()
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password, created_at, updated_at):
         self.username = username
         self.email = self.validate_email(email)
         self.password = self.check_password_strength(password)
+        self.created_at = created_at
+        self.updated_at = updated_at
 
     def __repr__(self):
         return f"<User {self.username!r}>"
@@ -52,12 +54,21 @@ user_table = Table(
     Column("password", String, nullable=False),
     Column("updated_at", Float, nullable=False),
     Column("created_at", Float, nullable=False),
+    Column("banned_at", Float, nullable=True),
+    Column("unbanned_at", Float, nullable=True),
     Column("is_active", Boolean, default=False),
     CheckConstraint("length(username) > 0", name="non_empty_username"),
     CheckConstraint("length(email) > 0", name="non_empty_email"),
     CheckConstraint("length(password) > 0", name="non_empty_password"),
     CheckConstraint("updated_at >= 0", name="positive_updated_at"),
     CheckConstraint("created_at >= 0", name="positive_created_at"),
+    CheckConstraint(
+        "(banned_at >= 0) OR (banned_at IS NULL)", name="positive_banned_at_or_null"
+    ),
+    CheckConstraint(
+        "(unbanned_at >= 0) OR (unbanned_at IS NULL)",
+        name="positive_un_banned_at_or_null",
+    ),
 )
 
 mapper_registry.map_imperatively(UserDatabase, user_table)

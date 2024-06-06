@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from models import TodoList
+from models import TodoListDatabase
 from .database import Database
 from sqlalchemy import func, and_
 import datetime
@@ -23,13 +23,13 @@ class MaxPinned3(Exception):
         super().__init__(self.message)
 
 
-class TodolistDatabase(Database):
+class TodolistCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
 
     async def insert(self, username, task, tags, date):
-        todo_list = TodoList(username, task, tags, date)
+        todo_list = TodoListDatabase(username, task, tags, date)
         db_session.add(todo_list)
         db_session.commit()
         return todo_list
@@ -39,10 +39,10 @@ class TodolistDatabase(Database):
         id = kwargs.get("id")
         tags = kwargs.get("tags")
         if type == "task":
-            todo = TodoList.query.filter(
+            todo = TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).first()
             if todo:
@@ -52,8 +52,10 @@ class TodolistDatabase(Database):
                 raise TaskNotFoundError(f"task {id} not found")
         elif type == "username":
             todos = (
-                TodoList.query.filter(func.lower(TodoList.username) == username.lower())
-                .order_by(TodoList.created_at)
+                TodoListDatabase.query.filter(
+                    func.lower(TodoListDatabase.username) == username.lower()
+                )
+                .order_by(TodoListDatabase.created_at)
                 .all()
             )
             if todos:
@@ -63,10 +65,10 @@ class TodolistDatabase(Database):
             else:
                 raise TaskNotFoundError(f"user {username!r} not found")
         elif type == "tags":
-            todo = TodoList.query.filter(
+            todo = TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).first()
             if not todo:
@@ -86,59 +88,61 @@ class TodolistDatabase(Database):
         id = kwargs.get("id")
         if type == "username":
             return (
-                TodoList.query.filter(func.lower(TodoList.username) == username.lower())
-                .order_by(TodoList.created_at)
+                TodoListDatabase.query.filter(
+                    func.lower(TodoListDatabase.username) == username.lower()
+                )
+                .order_by(TodoListDatabase.created_at)
                 .all()
             )
         elif type == "id":
-            return TodoList.query.filter(
+            return TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).first()
         elif type == "completed":
             return (
-                TodoList.query.filter(
+                TodoListDatabase.query.filter(
                     and_(
-                        func.lower(TodoList.username) == username.lower(),
-                        TodoList.is_done == True,
+                        func.lower(TodoListDatabase.username) == username.lower(),
+                        TodoListDatabase.is_done == True,
                     )
                 )
-                .order_by(TodoList.created_at)
+                .order_by(TodoListDatabase.created_at)
                 .all()
             )
         elif type == "inclomplete":
             return (
-                TodoList.query.filter(
+                TodoListDatabase.query.filter(
                     and_(
-                        func.lower(TodoList.username) == username.lower(),
-                        TodoList.is_done == False,
+                        func.lower(TodoListDatabase.username) == username.lower(),
+                        TodoListDatabase.is_done == False,
                     )
                 )
-                .order_by(TodoList.created_at)
+                .order_by(TodoListDatabase.created_at)
                 .all()
             )
         elif type == "bookmark":
             return (
-                TodoList.query.filter(
+                TodoListDatabase.query.filter(
                     and_(
-                        func.lower(TodoList.username) == username.lower(),
-                        TodoList.bookmark == True,
+                        func.lower(TodoListDatabase.username) == username.lower(),
+                        TodoListDatabase.bookmark == True,
                     )
                 )
-                .order_by(TodoList.created_at)
+                .order_by(TodoListDatabase.created_at)
                 .all()
             )
         elif type == "pinned":
             return (
-                TodoList.query.filter(
+                TodoListDatabase.query.filter(
                     and_(
-                        func.lower(TodoList.username) == username.lower(),
-                        TodoList.is_pin == True,
+                        func.lower(TodoListDatabase.username) == username.lower(),
+                        TodoListDatabase.is_pin == True,
                     )
                 )
-                .order_by(TodoList.created_at)
+                .order_by(TodoListDatabase.created_at)
                 .all()
             )
 
@@ -147,10 +151,10 @@ class TodolistDatabase(Database):
         id = kwargs.get("id")
         new_task = kwargs.get("new_task")
         if type == "is_done":
-            if todo := TodoList.query.filter(
+            if todo := TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).first():
                 todo.is_done = not todo.is_done
@@ -161,10 +165,10 @@ class TodolistDatabase(Database):
             else:
                 raise TaskNotFoundError(f"task {id} not found")
         elif type == "bookmark":
-            if todo := TodoList.query.filter(
+            if todo := TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).first():
                 todo.bookmark = not todo.bookmark
@@ -176,10 +180,10 @@ class TodolistDatabase(Database):
             else:
                 raise TaskNotFoundError(f"task {id} not found")
         elif type == "task":
-            if todo := TodoList.query.filter(
+            if todo := TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).first():
                 todo.task = new_task
@@ -190,18 +194,18 @@ class TodolistDatabase(Database):
             else:
                 raise TaskNotFoundError(f"task {id} not found")
         elif type == "pinned":
-            todo = TodoList.query.filter(
+            todo = TodoListDatabase.query.filter(
                 and_(
-                    func.lower(TodoList.username) == username.lower(),
-                    TodoList.id == id,
+                    func.lower(TodoListDatabase.username) == username.lower(),
+                    TodoListDatabase.id == id,
                 )
             ).all()
             if todo:
-                todo_is_pin = TodoList.query.filter(
+                todo_is_pin = TodoListDatabase.query.filter(
                     and_(
-                        func.lower(TodoList.username) == username.lower(),
-                        TodoList.id == id,
-                        TodoList.is_pin == True,
+                        func.lower(TodoListDatabase.username) == username.lower(),
+                        TodoListDatabase.id == id,
+                        TodoListDatabase.is_pin == True,
                     )
                 ).all()
                 if todo_is_pin:
@@ -216,10 +220,10 @@ class TodolistDatabase(Database):
                     else:
                         raise MaxPinned3
                 else:
-                    pinned_tasks_count = TodoList.query.filter(
+                    pinned_tasks_count = TodoListDatabase.query.filter(
                         and_(
-                            func.lower(TodoList.username) == username.lower(),
-                            TodoList.is_pin == True,
+                            func.lower(TodoListDatabase.username) == username.lower(),
+                            TodoListDatabase.is_pin == True,
                         )
                     ).count()
 
