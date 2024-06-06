@@ -30,7 +30,7 @@ reset_password_table = Table(
     Column("id", Integer, primary_key=True),
     Column(
         "user_id",
-        String(collation="C"),
+        Integer,
         ForeignKey("user.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
