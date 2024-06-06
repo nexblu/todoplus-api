@@ -66,12 +66,10 @@ class TodolistCRUD(Database):
         user_id = kwargs.get("user_id")
         if category == "is-done":
             if (
-                data := TodoListDatabase.query.filter(
-                    and_(
-                        TodoListDatabase.user_id == user_id,
-                        TodoListDatabase.is_done == True,
-                    )
-                )
+                data := db_session.query(UserDatabase, TodoListDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .filter(UserDatabase.id == user_id)
                 .order_by(desc(TodoListDatabase.created_at))
                 .all()
             ):
