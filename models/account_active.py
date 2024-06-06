@@ -15,7 +15,7 @@ from utils import EmailNotValid
 mapper_registry = registry()
 
 
-class AccountActive:
+class AccountActiveDatabase:
     query = db_session.query_property()
 
     def __init__(self, email, token):
@@ -55,4 +55,4 @@ account_active_table = Table(
     CheckConstraint("expired_at >= 0", name="positive_expired_at"),
 )
 
-mapper_registry.map_imperatively(AccountActive, account_active_table)
+mapper_registry.map_imperatively(AccountActiveDatabase, account_active_table)
