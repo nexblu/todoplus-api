@@ -43,6 +43,7 @@ class TodolistCRUD(Database):
 
     async def delete(self, category, **kwargs):
         user_id = kwargs.get("user_id")
+        task_id = kwargs.get("task_id")
         email = kwargs.get("email")
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         if category == "clear":
@@ -59,6 +60,25 @@ class TodolistCRUD(Database):
                 await self.user_database.update(
                     "updated_at", updated_at=created_at, email=email
                 )
+                return
+            raise TaskNotFound
+        elif category == "task_id":
+            if (
+                data := db_session.query(UserDatabase, TodoListDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .filter(
+                    and_(UserDatabase.id == user_id, TodoListDatabase.id == task_id)
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .first()
+            ):
+                user, task = data
+                db_session.delete(task)
+                user.updated_at = datetime.datetime.now(
+                    datetime.timezone.utc
+                ).timestamp()
+                db_session.commit()
                 return
             raise TaskNotFound
 
