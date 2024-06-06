@@ -19,25 +19,6 @@ CORS(app, supports_credentials=True)
 limiter = Limiter(
     get_remote_address, app=app, default_limits=[""], storage_uri="memory://"
 )
-app.config["GITHUB_CLIENT_ID"] = "XXX"
-app.config["GITHUB_CLIENT_SECRET"] = "YYY"
-app.config["GITHUB_BASE_URL"] = "https://HOSTNAME/api/v3/"
-app.config["GITHUB_AUTH_URL"] = "https://HOSTNAME/login/oauth/"
-
-github = GitHub(app)
-
-
-app.register_blueprint(login_router)
-app.register_blueprint(user_router)
-app.register_blueprint(todo_list_router)
-app.register_blueprint(register_router)
-app.register_blueprint(reset_router)
-app.register_blueprint(account_active_router)
-app.register_blueprint(email_router)
-app.register_error_handler(429, handle_429)
-app.register_error_handler(404, handle_404)
-app.register_error_handler(415, handle_415)
-app.register_error_handler(400, handle_400)
 
 
 @app.after_request
@@ -53,9 +34,22 @@ async def shutdown_session(exception=None):
     db_session.remove()
 
 
-@app.get("/")
-async def home():
-    return jsonify("welcome to todolist api"), 200
+@app.teardown_request
+async def checkin_db(exc):
+    db_session.remove()
+
+
+app.register_blueprint(login_router)
+app.register_blueprint(user_router)
+app.register_blueprint(todo_list_router)
+app.register_blueprint(register_router)
+app.register_blueprint(reset_router)
+app.register_blueprint(account_active_router)
+app.register_blueprint(email_router)
+app.register_error_handler(429, handle_429)
+app.register_error_handler(404, handle_404)
+app.register_error_handler(415, handle_415)
+app.register_error_handler(400, handle_400)
 
 
 if __name__ == "__main__":
