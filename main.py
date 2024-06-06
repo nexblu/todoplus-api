@@ -27,7 +27,7 @@ async def shutdown_session(exception=None):
 
 
 @app.teardown_request
-async def checkin_db(exc):
+async def checkin_db(exception=None):
     db_session.remove()
 
 
