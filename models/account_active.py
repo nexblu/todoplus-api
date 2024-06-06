@@ -18,21 +18,12 @@ mapper_registry = registry()
 class AccountActiveDatabase:
     query = db_session.query_property()
 
-    def __init__(self, email, token):
-        self.email = self.validate_email(email)
+    def __init__(self, user_id, token):
+        self.user_id = user_id
         self.token = token
 
     def __repr__(self):
-        return f"<User {self.email!r}>"
-
-    @staticmethod
-    def validate_email(email):
-        try:
-            emailinfo = validate_email(email, check_deliverability=False)
-            email = emailinfo.normalized
-        except EmailNotValidError as e:
-            raise EmailNotValid
-        return email
+        return f"<Account Active '{self.user_id}'>"
 
 
 account_active_table = Table(
