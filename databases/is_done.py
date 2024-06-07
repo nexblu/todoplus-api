@@ -41,7 +41,7 @@ class IsDoneCRUD(Database):
 
     async def delete(self, category, **kwargs):
         user_id = kwargs.get("user_id")
-        email = kwargs.get("email")
+        task_id = kwargs.get("task_id")
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         if category == "all":
             if (
@@ -61,6 +61,25 @@ class IsDoneCRUD(Database):
                 await self.todo_list_database.update(
                     "updated_at", updated_at=created_at, user_id=user_id
                 )
+                db_session.commit()
+                return
+            raise TaskNotFound
+        elif category == "task_id":
+            if (
+                data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .join(IsDoneDatabase)
+                .filter(
+                    and_(UserDatabase.id == user_id, IsDoneDatabase.task_id == task_id)
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .first()
+            ):
+                user, task, is_done = data
+                db_session.delete(is_done)
+                user.updated_at = created_at
+                task.updated_at = created_at
                 db_session.commit()
                 return
             raise TaskNotFound

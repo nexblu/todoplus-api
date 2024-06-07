@@ -219,7 +219,7 @@ async def todo_list_delete_task_id(task_id):
 
 @todo_list_router.delete("/todoplus/v1/todolist/is-done")
 @token_required()
-async def todo_list_delete_is_done():
+async def _task_id():
     user = request.user
     try:
         await is_done_database.delete("all", user_id=user.id)
@@ -328,6 +328,34 @@ async def todo_list_post_is_done(task_id):
                 {
                     "status_code": 201,
                     "message": f"success mark '{task_id}' as done",
+                }
+            ),
+            201,
+        )
+
+
+@todo_list_router.delete("/todoplus/v1/todolist/is-done/<int:task_id>")
+@token_required()
+async def todo_list_delete_is_done_task_id(task_id):
+    user = request.user
+    try:
+        await is_done_database.delete("task_id", user_id=user.id, task_id=task_id)
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task '{task_id}' not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success unmark '{task_id}' as done",
                 }
             ),
             201,
