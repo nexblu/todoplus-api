@@ -219,7 +219,7 @@ async def todo_list_delete_task_id(task_id):
 
 @todo_list_router.delete("/todoplus/v1/todolist/is-done")
 @token_required()
-async def _task_id():
+async def delete_todolist_is_done():
     user = request.user
     try:
         await is_done_database.delete("all", user_id=user.id)
