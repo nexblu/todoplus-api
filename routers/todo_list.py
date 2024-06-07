@@ -3,7 +3,7 @@ from databases import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
 from utils import token_required, TaskNotFound
 import datetime
 import traceback
-from sqlalchemy.exc import IntegrityError, DataError
+from sqlalchemy.exc import IntegrityError, DataError, PendingRollbackError
 
 todo_list_router = Blueprint("api user task", __name__)
 todo_list_database = TodoListCRUD()
@@ -293,4 +293,42 @@ async def todo_list_get_is_done():
                 }
             ),
             200,
+        )
+
+
+@todo_list_router.post("/todoplus/v1/todolist/is-done/<int:task_id>")
+@token_required()
+async def todo_list_post_is_done(task_id):
+    user = request.user
+    try:
+        await is_done_database.insert(user.id, task_id)
+    except IntegrityError:
+        return (
+            jsonify(
+                {
+                    "status_code": 400,
+                    "message": f"task '{task_id}' already mark done",
+                }
+            ),
+            400,
+        )
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task '{task_id}' not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success mark '{task_id}' as done",
+                }
+            ),
+            201,
         )

@@ -16,16 +16,28 @@ class IsDoneCRUD(Database):
         self.todo_list_database = TodoListCRUD()
 
     async def insert(self, user_id, task_id):
-        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        is_done = IsDoneDatabase(user_id, task_id, created_at, created_at)
-        db_session.add(is_done)
-        await self.user_database.update(
-            "updated_at", updated_at=created_at, user_id=user_id
-        )
-        await self.todo_list_database.update(
-            "updated_at", updated_at=created_at, user_id=user_id
-        )
-        db_session.commit()
+        if (
+            data := IsDoneDatabase.query.filter(
+                and_(
+                    IsDoneDatabase.task_id == task_id,
+                    IsDoneDatabase.user_id == user_id,
+                )
+            )
+            .order_by(desc(IsDoneDatabase.created_at))
+            .first()
+        ):
+            created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+            is_done = IsDoneDatabase(user_id, task_id, created_at, created_at)
+            db_session.add(is_done)
+            await self.user_database.update(
+                "updated_at", updated_at=created_at, user_id=user_id
+            )
+            await self.todo_list_database.update(
+                "updated_at", updated_at=created_at, user_id=user_id
+            )
+            db_session.commit()
+            return
+        raise TaskNotFound
 
     async def delete(self, category, **kwargs):
         user_id = kwargs.get("user_id")
