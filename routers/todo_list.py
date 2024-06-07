@@ -73,7 +73,7 @@ async def todo_list_get():
             jsonify(
                 {
                     "status_code": 200,
-                    "message": f"data '{user.username!r}' was found",
+                    "message": f"data {user.username!r} was found",
                     "result": {
                         "task": [
                             {
@@ -159,7 +159,7 @@ async def todo_list_get_task_id(task_id):
             jsonify(
                 {
                     "status_code": 200,
-                    "message": f"data '{user.username!r}' was found",
+                    "message": f"data {user.username!r} was found",
                     "result": {
                         "task": {
                             "user_id": author.id,
@@ -266,7 +266,7 @@ async def todo_list_get_is_done():
             jsonify(
                 {
                     "status_code": 200,
-                    "message": f"data '{user.username!r}' was found",
+                    "message": f"data {user.username!r} was found",
                     "result": {
                         "task": [
                             {
