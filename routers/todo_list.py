@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from databases import TodolistCRUD
+from databases import TodolistCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
 from utils import token_required, TaskNotFound
 import datetime
 import traceback
@@ -7,6 +7,9 @@ from sqlalchemy.exc import IntegrityError, DataError
 
 todo_list_router = Blueprint("api user task", __name__)
 todo_list_database = TodolistCRUD()
+is_done_database = IsDoneCRUD()
+is_pin_database = IsPinCRUD()
+bookmark_database = BookmarkCRUD()
 
 
 @todo_list_router.post("/todoplus/v1/todolist")
@@ -81,9 +84,15 @@ async def todo_list_get():
                                 "task": todo_list.task,
                                 "date": todo_list.date,
                                 "tags": todo_list.tags,
-                                "is_done": todo_list.is_done,
-                                "is_pin": todo_list.is_pin,
-                                "bookmark": todo_list.bookmark,
+                                "is_done": await is_done_database.get(
+                                    "is_done", task_id=todo_list.id, user_id=author.id
+                                ),
+                                "is_pin": await is_pin_database.get(
+                                    "is_pin", task_id=todo_list.id, user_id=author.id
+                                ),
+                                "bookmark": await bookmark_database.get(
+                                    "bookmark", task_id=todo_list.id, user_id=author.id
+                                ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,
                             }
@@ -160,9 +169,15 @@ async def todo_list_get_task_id(task_id):
                             "task": todo_list.task,
                             "date": todo_list.date,
                             "tags": todo_list.tags,
-                            "is_done": todo_list.is_done,
-                            "is_pin": todo_list.is_pin,
-                            "bookmark": todo_list.bookmark,
+                            "is_done": await is_done_database.get(
+                                "is_done", task_id=todo_list.id, user_id=author.id
+                            ),
+                            "is_pin": await is_pin_database.get(
+                                "is_pin", task_id=todo_list.id, user_id=author.id
+                            ),
+                            "bookmark": await bookmark_database.get(
+                                "bookmark", task_id=todo_list.id, user_id=author.id
+                            ),
                             "updated_at": todo_list.updated_at,
                             "created_at": todo_list.created_at,
                         }
@@ -203,16 +218,12 @@ async def todo_list_delete_task_id(task_id):
         )
 
 
-@todo_list_router.put("/todoplus/v1/todolist/is-done")
+@todo_list_router.post("/todoplus/v1/todolist/is-done")
 @token_required()
 async def todo_list_update_is_done():
-    data = request.json
     user = request.user
-    is_done = data.get("is_done")
     try:
-        await todo_list_database.update(
-            "is-done", user_id=user.id, is_done=is_done, email=user.email
-        )
+        await is_done_database.update("all", user_id=user.id, email=user.email)
     except TaskNotFound:
         return (
             jsonify(
@@ -240,7 +251,7 @@ async def todo_list_update_is_done():
 async def todo_list_get_is_done():
     user = request.user
     try:
-        data = await todo_list_database.get("is-done", user_id=user.id)
+        data = await is_done_database.get("all", user_id=user.id)
     except TaskNotFound:
         return (
             jsonify(
@@ -266,13 +277,18 @@ async def todo_list_get_is_done():
                                 "task": todo_list.task,
                                 "date": todo_list.date,
                                 "tags": todo_list.tags,
-                                "is_done": todo_list.is_done,
-                                "is_pin": todo_list.is_pin,
-                                "bookmark": todo_list.bookmark,
+                                "is_done": True,
+                                "is_done_id": is_done.id,
+                                "is_pin": await is_pin_database.get(
+                                    "is_pin", task_id=todo_list.id, user_id=author.id
+                                ),
+                                "bookmark": await bookmark_database.get(
+                                    "bookmark", task_id=todo_list.id, user_id=author.id
+                                ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,
                             }
-                            for author, todo_list in data
+                            for author, todo_list, is_done in data
                         ],
                     },
                 }

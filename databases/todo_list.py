@@ -126,19 +126,6 @@ class TodolistCRUD(Database):
         is_done = kwargs.get("is_done")
         email = kwargs.get("email")
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        if type == "is-done":
-            if todo := TodoListDatabase.query.filter(
-                TodoListDatabase.user_id == user_id
-            ).all():
-                for data in todo:
-                    data.is_done = is_done
-                    data.updated_at = created_at
-                db_session.commit()
-                await self.user_database.update(
-                    "updated_at", updated_at=created_at, email=email
-                )
-                return
-            raise TaskNotFound
         # elif type == "bookmark":
         #     if todo := TodoListDatabase.query.filter(
         #         and_(

@@ -6,3 +6,4 @@ from .bookmark import *
 from .is_done import *
 from .wallet import *
 from .task_pin import *
+from .is_done import *
