@@ -61,6 +61,7 @@ class IsDoneCRUD(Database):
             ).all():
                 for data in todo:
                     is_done = IsDoneDatabase(user_id, data.id, created_at, created_at)
+                    data.updated_at = created_at
                     db_session.add(is_done)
                 db_session.commit()
                 await self.user_database.update(
