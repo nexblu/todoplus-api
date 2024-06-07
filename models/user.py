@@ -1,9 +1,10 @@
 from sqlalchemy import Table, Column, Integer, String, Boolean, Float, CheckConstraint
-from sqlalchemy.orm import registry
+from sqlalchemy.orm import registry, relationship
 from databases import metadata, db_session
 import re
 from utils import PasswordNotSecure, EmailNotValid
 from email_validator import validate_email, EmailNotValidError
+from .todo_list import TodoListDatabase
 
 mapper_registry = registry()
 
@@ -77,4 +78,12 @@ user_table = Table(
     ),
 )
 
-mapper_registry.map_imperatively(UserDatabase, user_table)
+mapper_registry.map_imperatively(
+    UserDatabase,
+    user_table,
+    properties={
+        "todo_list": relationship(
+            TodoListDatabase, uselist=False, back_populates="user"
+        )
+    },
+)
