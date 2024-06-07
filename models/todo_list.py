@@ -3,12 +3,11 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
-    Boolean,
     Float,
     ForeignKey,
     CheckConstraint,
 )
-from sqlalchemy.orm import registry
+from sqlalchemy.orm import registry, relationship
 from databases import metadata, db_session
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -55,4 +54,10 @@ todo_list_table = Table(
     CheckConstraint("created_at >= 0", name="positive_created_at"),
 )
 
-mapper_registry.map_imperatively(TodoListDatabase, todo_list_table)
+mapper_registry.map_imperatively(
+    TodoListDatabase,
+    todo_list_table,
+    properties={
+        "user": relationship(TodoListDatabase, uselist=False, back_populates="user")
+    },
+)
