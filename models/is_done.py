@@ -39,6 +39,7 @@ is_done_table = Table(
         "task_id",
         Integer,
         ForeignKey("todo_list.id", ondelete="CASCADE"),
+        unique=True,
         nullable=False,
     ),
     Column("created_at", Float, nullable=False),

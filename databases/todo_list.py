@@ -4,7 +4,7 @@ from .database import Database
 from sqlalchemy import func, and_, desc
 import datetime
 from .user import UserCRUD
-from utils import TaskNotFound
+from utils import TaskNotFound, UserNotFound
 
 
 class TaskNotFoundError(Exception):
@@ -25,19 +25,19 @@ class MaxPinned3(Exception):
         super().__init__(self.message)
 
 
-class TodolistCRUD(Database):
+class TodoListCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
         self.user_database = UserCRUD()
 
-    async def insert(self, user_id, email, task, tags, date):
+    async def insert(self, user_id, task, tags, date):
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         todo_list = TodoListDatabase(user_id, task, tags, date, created_at, created_at)
         db_session.add(todo_list)
         db_session.commit()
         await self.user_database.update(
-            "updated_at", updated_at=created_at, email=email
+            "updated_at", updated_at=created_at, user_id=user_id
         )
         return todo_list
 
@@ -121,11 +121,19 @@ class TodolistCRUD(Database):
                 return data
             raise TaskNotFound
 
-    async def update(self, type, **kwargs):
+    async def update(self, category, **kwargs):
         user_id = kwargs.get("user_id")
-        is_done = kwargs.get("is_done")
-        email = kwargs.get("email")
-        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        user_id = kwargs.get("user_id")
+        updated_at = kwargs.get("updated_at")
+        if category == "updated_at":
+            if data := TodoListDatabase.query.filter(
+                TodoListDatabase.user_id == user_id
+            ).all():
+                for user in data:
+                    user.updated_at = updated_at
+                db_session.commit()
+                return
+            raise UserNotFound
         # elif type == "bookmark":
         #     if todo := TodoListDatabase.query.filter(
         #         and_(

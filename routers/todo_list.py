@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
-from databases import TodolistCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
+from databases import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
 from utils import token_required, TaskNotFound
 import datetime
 import traceback
 from sqlalchemy.exc import IntegrityError, DataError
 
 todo_list_router = Blueprint("api user task", __name__)
-todo_list_database = TodolistCRUD()
+todo_list_database = TodoListCRUD()
 is_done_database = IsDoneCRUD()
 is_pin_database = IsPinCRUD()
 bookmark_database = BookmarkCRUD()
@@ -22,7 +22,6 @@ async def todo_list_add():
     try:
         await todo_list_database.insert(
             user.id,
-            user.email,
             task,
             tags,
             datetime.datetime.now(datetime.timezone.utc).timestamp(),
@@ -218,12 +217,12 @@ async def todo_list_delete_task_id(task_id):
         )
 
 
-@todo_list_router.post("/todoplus/v1/todolist/is-done")
+@todo_list_router.delete("/todoplus/v1/todolist/is-done")
 @token_required()
-async def todo_list_update_is_done():
+async def todo_list_delete_is_done():
     user = request.user
     try:
-        await is_done_database.update("all", user_id=user.id, email=user.email)
+        await is_done_database.delete("all", user_id=user.id)
     except TaskNotFound:
         return (
             jsonify(
