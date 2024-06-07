@@ -332,3 +332,53 @@ async def todo_list_post_is_done(task_id):
             ),
             201,
         )
+
+
+@todo_list_router.get("/todoplus/v1/todolist/is-done/<int:task_id>")
+@token_required()
+async def todo_list_get_is_done_task_id(task_id):
+    user = request.user
+    try:
+        result = await is_done_database.get("task_id", user_id=user.id, task_id=task_id)
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                    "result": None,
+                }
+            ),
+            404,
+        )
+    else:
+        author, todo_list, is_done = result
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "message": f"data {user.username!r} was found",
+                    "result": {
+                        "task": {
+                            "user_id": author.id,
+                            "username": author.username,
+                            "task_id": todo_list.id,
+                            "task": todo_list.task,
+                            "date": todo_list.date,
+                            "tags": todo_list.tags,
+                            "is_done": True,
+                            "is_done_id": is_done.id,
+                            "is_pin": await is_pin_database.get(
+                                "is_pin", task_id=todo_list.id, user_id=author.id
+                            ),
+                            "bookmark": await bookmark_database.get(
+                                "bookmark", task_id=todo_list.id, user_id=author.id
+                            ),
+                            "updated_at": todo_list.updated_at,
+                            "created_at": todo_list.created_at,
+                        }
+                    },
+                }
+            ),
+            200,
+        )

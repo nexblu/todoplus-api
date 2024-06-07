@@ -81,7 +81,7 @@ class IsDoneCRUD(Database):
             ):
                 return True
             return False
-        if category == "all":
+        elif category == "all":
             if (
                 data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
                 .select_from(UserDatabase)
@@ -90,6 +90,20 @@ class IsDoneCRUD(Database):
                 .filter(UserDatabase.id == user_id)
                 .order_by(desc(TodoListDatabase.created_at))
                 .all()
+            ):
+                return data
+            raise TaskNotFound
+        elif category == "task_id":
+            if (
+                data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .join(IsDoneDatabase)
+                .filter(
+                    and_(UserDatabase.id == user_id, IsDoneDatabase.task_id == task_id)
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .first()
             ):
                 return data
             raise TaskNotFound
