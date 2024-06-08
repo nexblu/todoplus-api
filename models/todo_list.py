@@ -57,7 +57,4 @@ todo_list_table = Table(
 mapper_registry.map_imperatively(
     TodoListDatabase,
     todo_list_table,
-    properties={
-        "user": relationship(TodoListDatabase, uselist=False, back_populates="user")
-    },
 )
