@@ -17,13 +17,13 @@ class IsDoneCRUD(Database):
 
     async def insert(self, user_id, task_id):
         if (
-            data := IsDoneDatabase.query.filter(
+            data := TodoListDatabase.query.filter(
                 and_(
-                    IsDoneDatabase.task_id == task_id,
-                    IsDoneDatabase.user_id == user_id,
+                    TodoListDatabase.id == task_id,
+                    TodoListDatabase.user_id == user_id,
                 )
             )
-            .order_by(desc(IsDoneDatabase.created_at))
+            .order_by(desc(TodoListDatabase.created_at))
             .first()
         ):
             created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
