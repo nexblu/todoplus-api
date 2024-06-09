@@ -147,7 +147,7 @@ async def todo_list_get_task_id(task_id):
             jsonify(
                 {
                     "status_code": 404,
-                    "message": f"task {user.username!r} not found",
+                    "message": f"task '{task_id}' not found",
                     "result": None,
                 }
             ),
@@ -192,15 +192,13 @@ async def todo_list_get_task_id(task_id):
 async def todo_list_delete_task_id(task_id):
     user = request.user
     try:
-        await todo_list_database.delete(
-            "task_id", user_id=user.id, task_id=task_id, email=user.email
-        )
+        await todo_list_database.delete("task_id", user_id=user.id, task_id=task_id)
     except TaskNotFound:
         return (
             jsonify(
                 {
                     "status_code": 404,
-                    "message": f"task {user.username!r} not found",
+                    "message": f"task '{task_id}' not found",
                 }
             ),
             404,
@@ -211,6 +209,38 @@ async def todo_list_delete_task_id(task_id):
                 {
                     "status_code": 200,
                     "message": f"success delete task {user.username!r} with id '{task_id}'",
+                }
+            ),
+            200,
+        )
+
+
+@todo_list_router.put("/todoplus/v1/todolist/<int:task_id>")
+@token_required()
+async def todo_list_put_task_id(task_id):
+    user = request.user
+    data = request.json
+    new_task = data.get("new_task")
+    try:
+        await todo_list_database.update(
+            "new_task", user_id=user.id, task_id=task_id, new_task=new_task
+        )
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task '{task_id}' not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 200,
+                    "message": f"success update task {user.username!r} with id '{task_id}'",
                 }
             ),
             200,
@@ -765,9 +795,7 @@ async def todo_list_delete_is_pin_task_id(task_id):
 async def todo_list_get_is_pin_task_id(task_id):
     user = request.user
     try:
-        result = await is_pin_database.get(
-            "task_id", user_id=user.id, task_id=task_id
-        )
+        result = await is_pin_database.get("task_id", user_id=user.id, task_id=task_id)
     except TaskNotFound:
         return (
             jsonify(

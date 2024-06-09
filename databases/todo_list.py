@@ -44,7 +44,6 @@ class TodoListCRUD(Database):
     async def delete(self, category, **kwargs):
         user_id = kwargs.get("user_id")
         task_id = kwargs.get("task_id")
-        email = kwargs.get("email")
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         if category == "clear":
             if (
@@ -58,7 +57,7 @@ class TodoListCRUD(Database):
                     db_session.delete(d)
                 db_session.commit()
                 await self.user_database.update(
-                    "updated_at", updated_at=created_at, email=email
+                    "updated_at", updated_at=created_at, user_id=user_id
                 )
                 return
             raise TaskNotFound
@@ -123,14 +122,34 @@ class TodoListCRUD(Database):
 
     async def update(self, category, **kwargs):
         user_id = kwargs.get("user_id")
-        user_id = kwargs.get("user_id")
         updated_at = kwargs.get("updated_at")
+        task_id = kwargs.get("task_id")
+        new_task = kwargs.get("new_task")
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         if category == "updated_at":
             if data := TodoListDatabase.query.filter(
                 TodoListDatabase.user_id == user_id
             ).all():
                 for user in data:
                     user.updated_at = updated_at
+                db_session.commit()
+                return
+            raise UserNotFound
+        elif category == "new_task":
+            if (
+                data := db_session.query(UserDatabase, TodoListDatabase)
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .filter(
+                    and_(UserDatabase.id == user_id, TodoListDatabase.id == task_id)
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .first()
+            ):
+                user, task = data
+                task.task = new_task
+                task.updated_at = created_at
+                user.updated_at = created_at
                 db_session.commit()
                 return
             raise UserNotFound
