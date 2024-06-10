@@ -172,9 +172,7 @@ class BookmarkCRUD(Database):
                             "bookmark_id", user_id=user_id, task_id=data.id
                         )
                     ):
-                        bookmark = BookmarkDatabase(
-                            user_id, data.id, created_at, created_at
-                        )
+                        bookmark = BookmarkDatabase(user_id, data.id, created_at)
                         db_session.add(bookmark)
                 db_session.commit()
                 await self.user_database.update(
