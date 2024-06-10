@@ -296,6 +296,34 @@ async def delete_todo_list_is_done():
         )
 
 
+@todo_list_router.post("/todoplus/v1/todolist/is-done")
+@token_required()
+async def post_todo_list_is_done():
+    user = request.user
+    try:
+        await is_done_database.update("all", user_id=user.id)
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success update mark task {user.username!r}",
+                }
+            ),
+            201,
+        )
+
+
 @todo_list_router.get("/todoplus/v1/todolist/is-done")
 @token_required()
 async def todo_list_get_is_done():
@@ -739,7 +767,9 @@ async def todo_list_get_is_pin():
                                     "bookmark", task_id=todo_list.id, user_id=author.id
                                 ),
                                 "bookmark_id": await bookmark_database.get(
-                                    "bookmark_id", task_id=todo_list.id, user_id=author.id
+                                    "bookmark_id",
+                                    task_id=todo_list.id,
+                                    user_id=author.id,
                                 ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,
