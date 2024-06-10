@@ -33,7 +33,10 @@ class IsDoneCRUD(Database):
                 "updated_at", updated_at=created_at, user_id=user_id
             )
             await self.todo_list_database.update(
-                "updated_at", updated_at=created_at, user_id=user_id
+                "updated_at_task_id",
+                updated_at=created_at,
+                user_id=user_id,
+                task_id=task_id,
             )
             db_session.commit()
             return

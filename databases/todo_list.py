@@ -135,6 +135,16 @@ class TodoListCRUD(Database):
                 db_session.commit()
                 return
             raise UserNotFound
+        elif category == "updated_at_task_id":
+            if data := TodoListDatabase.query.filter(
+                and_(
+                    TodoListDatabase.user_id == user_id, TodoListDatabase.id == task_id
+                )
+            ).first():
+                data.updated_at = updated_at
+                db_session.commit()
+                return
+            raise TaskNotFound
         elif category == "new_task":
             if (
                 data := db_session.query(UserDatabase, TodoListDatabase)
