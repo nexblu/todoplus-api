@@ -593,9 +593,10 @@ async def todo_list_delete_bookmark():
             201,
         )
 
+
 @todo_list_router.post("/todoplus/v1/todolist/bookmark")
 @token_required()
-async def todo_list_post_bookmark():
+async def todo_list_post_bookmark_task_id():
     user = request.user
     try:
         await bookmark_database.insert("all", user_id=user.id)
@@ -623,7 +624,7 @@ async def todo_list_post_bookmark():
 
 @todo_list_router.post("/todoplus/v1/todolist/bookmark/<int:task_id>")
 @token_required()
-async def todo_list_post_bookmark(task_id):
+async def todo_list_post_bookmark_task_id(task_id):
     user = request.user
     try:
         await bookmark_database.insert(user.id, task_id)
