@@ -2,7 +2,6 @@ from sqlalchemy import (
     Table,
     Column,
     Integer,
-    String,
     Boolean,
     Float,
     CheckConstraint,

@@ -9,8 +9,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry
 from databases import metadata, db_session
-from email_validator import validate_email, EmailNotValidError
-from utils import EmailNotValid
 
 mapper_registry = registry()
 

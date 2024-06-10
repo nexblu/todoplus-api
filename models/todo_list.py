@@ -7,7 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     CheckConstraint,
 )
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy.orm import registry
 from databases import metadata, db_session
 from sqlalchemy.dialects.postgresql import JSONB
 
