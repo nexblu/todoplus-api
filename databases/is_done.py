@@ -162,5 +162,11 @@ class IsDoneCRUD(Database):
                         )
                         db_session.add(is_done)
                 db_session.commit()
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                await self.todo_list_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
                 return
             raise TaskNotFound
