@@ -27,7 +27,7 @@ class IsDoneCRUD(Database):
             .first()
         ):
             created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            is_done = IsDoneDatabase(user_id, task_id, created_at, created_at)
+            is_done = IsDoneDatabase(user_id, task_id, created_at)
             db_session.add(is_done)
             await self.user_database.update(
                 "updated_at", updated_at=created_at, user_id=user_id

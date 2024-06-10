@@ -593,6 +593,33 @@ async def todo_list_delete_bookmark():
             201,
         )
 
+@todo_list_router.post("/todoplus/v1/todolist/bookmark")
+@token_required()
+async def todo_list_post_bookmark():
+    user = request.user
+    try:
+        await bookmark_database.insert("all", user_id=user.id)
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success clear bookmark {user.username!r}",
+                }
+            ),
+            201,
+        )
+
 
 @todo_list_router.post("/todoplus/v1/todolist/bookmark/<int:task_id>")
 @token_required()

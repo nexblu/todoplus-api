@@ -27,13 +27,16 @@ class BookmarkCRUD(Database):
             .first()
         ):
             created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            is_done = BookmarkDatabase(user_id, task_id, created_at, created_at)
+            is_done = BookmarkDatabase(user_id, task_id, created_at)
             db_session.add(is_done)
             await self.user_database.update(
                 "updated_at", updated_at=created_at, user_id=user_id
             )
             await self.todo_list_database.update(
-                "updated_at", updated_at=created_at, user_id=user_id
+                "updated_at_task_id",
+                updated_at=created_at,
+                user_id=user_id,
+                task_id=task_id,
             )
             db_session.commit()
             return
@@ -153,4 +156,32 @@ class BookmarkCRUD(Database):
             raise TaskNotFound
 
     async def update(self, category, **kwargs):
-        pass
+        user_id = kwargs.get("user_id")
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        if category == "all":
+            if (
+                todo := TodoListDatabase.query.filter(
+                    TodoListDatabase.user_id == user_id
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .all()
+            ):
+                for data in todo:
+                    if not (
+                        bookmark := await self.get(
+                            "bookmark_id", user_id=user_id, task_id=data.id
+                        )
+                    ):
+                        bookmark = BookmarkDatabase(
+                            user_id, data.id, created_at, created_at
+                        )
+                        db_session.add(bookmark)
+                db_session.commit()
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                await self.todo_list_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                return
+            raise TaskNotFound
