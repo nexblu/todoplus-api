@@ -1,28 +1,10 @@
 from .config import db_session, init_db
 from models import TodoListDatabase, UserDatabase
 from .database import Database
-from sqlalchemy import func, and_, desc
+from sqlalchemy import and_, desc
 import datetime
 from .user import UserCRUD
 from utils import TaskNotFound, UserNotFound
-
-
-class TaskNotFoundError(Exception):
-    def __init__(self, message="task not found"):
-        self.message = message
-        super().__init__(self.message)
-
-
-class InvalidTags(Exception):
-    def __init__(self, message="invalid tags"):
-        self.message = message
-        super().__init__(self.message)
-
-
-class MaxPinned3(Exception):
-    def __init__(self, message="max pinned task is 3"):
-        self.message = message
-        super().__init__(self.message)
 
 
 class TodoListCRUD(Database):
