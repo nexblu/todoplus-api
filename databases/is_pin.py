@@ -152,4 +152,30 @@ class IsPinCRUD(Database):
             raise TaskNotFound
 
     async def update(self, category, **kwargs):
-        pass
+        user_id = kwargs.get("user_id")
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        if category == "all":
+            if (
+                todo := TodoListDatabase.query.filter(
+                    TodoListDatabase.user_id == user_id
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .all()
+            ):
+                for data in todo:
+                    if not (
+                        is_done := await self.get(
+                            "is_pin_id", user_id=user_id, task_id=data.id
+                        )
+                    ):
+                        is_done = TaskPinDatabase(user_id, data.id, created_at)
+                        db_session.add(is_done)
+                db_session.commit()
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                await self.todo_list_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                return
+            raise TaskNotFound

@@ -839,9 +839,37 @@ async def todo_list_delete_is_pin():
         )
 
 
+@todo_list_router.post("/todoplus/v1/todolist/is-pin")
+@token_required()
+async def todo_list_post_is_pin():
+    user = request.user
+    try:
+        await is_pin_database.update("all", user_id=user.id)
+    except TaskNotFound:
+        return (
+            jsonify(
+                {
+                    "status_code": 404,
+                    "message": f"task {user.username!r} not found",
+                }
+            ),
+            404,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "status_code": 201,
+                    "message": f"success pinned all task {user.username!r}",
+                }
+            ),
+            201,
+        )
+
+
 @todo_list_router.post("/todoplus/v1/todolist/is-pin/<int:task_id>")
 @token_required()
-async def todo_list_post_is_pin(task_id):
+async def todo_list_post_is_pin_task_id(task_id):
     user = request.user
     try:
         await is_pin_database.insert(user.id, task_id)
