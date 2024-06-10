@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify
 from email_validator import validate_email, EmailNotValidError
 
 email_router = Blueprint("api email", __name__)

@@ -1,6 +1,6 @@
-from databases import AccountActiveDatabase, UserDatabase
+from databases import AccountActiveCRUD, UserCRUD
 from flask import Blueprint, jsonify, request, render_template
-from utils import AccountActive
+from utils import AccountActive, UserNotFound
 import smtplib
 from email.mime.text import MIMEText
 from config import (
@@ -12,101 +12,84 @@ from config import (
     todoplus_url,
 )
 import datetime
-from sqlalchemy import exc
-import models
+import traceback
+from sqlalchemy.exc import IntegrityError
 
 account_active_router = Blueprint("api account active", __name__)
-account_active_database = AccountActiveDatabase()
-user_database = UserDatabase()
+account_active_database = AccountActiveCRUD()
+user_database = UserCRUD()
 
 
 @account_active_router.get("/todoplus/v1/user/email-verify/<string:token>")
 async def account_active(token):
     if valid_token := await AccountActive.get(token):
-        if user_token_database := await account_active_database.get(
-            "token", email=valid_token["email"], token=token
-        ):
-            if (
-                datetime.datetime.now(datetime.timezone.utc).timestamp()
-                <= user_token_database.expired_at
-            ):
-                try:
-                    await user_database.update(
-                        "is_active",
-                        is_active=True,
-                        email=user_token_database.email,
-                    )
-                except:
-                    return "invalid token"
-                else:
-                    await account_active_database.delete(
-                        "email", email=user_token_database.email
-                    )
-                    return render_template("account-active.html", url=todoplus_url)
         try:
-            await account_active_database.delete("email", email=valid_token["email"])
-        except:
-            pass
-    return "invalid token"
+            user_token_database = await account_active_database.get(
+                "token", user_id=valid_token["user_id"], token=token
+            )
+        except UserNotFound:
+            await account_active_database.delete(
+                "user_id", user_id=valid_token["user_id"]
+            )
+            return render_template("not_found.html")
+        else:
+            try:
+                await user_database.update(
+                    "is_active",
+                    is_active=True,
+                    email=valid_token["email"],
+                )
+            except:
+                await account_active_database.delete(
+                    "user_id", user_id=user_token_database.user_id
+                )
+                return render_template("not_found.html")
+            else:
+                await account_active_database.delete(
+                    "user_id", user_id=user_token_database.user_id
+                )
+                return render_template("email_active.html", url=todoplus_url)
+    return render_template("not_found.html")
 
 
 @account_active_router.post("/todoplus/v1/user/email-verify")
 async def account_active_email():
     data = request.json
     email = data.get("email")
-    token = await AccountActive.insert(email)
     try:
-        await account_active_database.insert(email, token)
-    except exc.IntegrityError:
+        user = await user_database.get("email", email=email)
+    except UserNotFound:
         return (
             jsonify(
                 {
-                    "status_code": 400,
-                    "message": f"failed send email to {email!r}",
+                    "status_code": 404,
+                    "message": f"user not found",
                 }
             ),
-            400,
-        )
-    except models.account_active.EmailRequired:
-        return (
-            jsonify(
-                {
-                    "status_code": 400,
-                    "message": f"data is invalid",
-                }
-            ),
-            400,
-        )
-    except Exception:
-        return (
-            jsonify(
-                {
-                    "status_code": 400,
-                    "message": f"bad request",
-                }
-            ),
-            400,
+            404,
         )
     else:
-        msg = MIMEText(
-            f"""<h1>Hi, Welcome {email}</h1>
-
-<p>Di Sini Kami Telah Mengirimkan Anda Untuk Verif Account: </p>
-<a href={api_url}/todoplus/v1/user/email-verify/{token}>Click Ini Untuk Verify Email</a>
-""",
-            "html",
-        )
-        msg["Subject"] = "Verify Email"
-        msg["From"] = smtp_email
-        msg["To"] = email
-
+        if user.is_active:
+            return (
+                jsonify(
+                    {
+                        "status_code": 400,
+                        "message": f"user {email!r} is active",
+                    }
+                ),
+                400,
+            )
+        created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        expired_at = created_at + (datetime.timedelta(hours=7).total_seconds())
+        token = await AccountActive.insert(user.id, email)
         try:
-            with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls()
-                server.login(smtp_email, smtp_password)
-                server.send_message(msg)
-                server.quit()
-        except:
+            await account_active_database.insert(
+                user.id,
+                token,
+                created_at,
+                expired_at,
+            )
+        except IntegrityError:
             return (
                 jsonify(
                     {
@@ -116,13 +99,44 @@ async def account_active_email():
                 ),
                 400,
             )
+        except Exception:
+            traceback.print_exc()
         else:
-            return (
-                jsonify(
-                    {
-                        "status_code": 201,
-                        "result": f"success send email to {email!r}",
-                    }
-                ),
-                201,
+            msg = MIMEText(
+                f"""<h1>Hi, Welcome {email}</h1>
+
+<p>Di Sini Kami Telah Mengirimkan Anda Untuk Verif Account: </p>
+<a href={api_url}/todoplus/v1/user/email-verify/{token}>Click Ini Untuk Verify Email</a>
+""",
+                "html",
             )
+            msg["Subject"] = "Verify Email"
+            msg["From"] = smtp_email
+            msg["To"] = email
+
+            try:
+                with smtplib.SMTP(smtp_server, smtp_port) as server:
+                    server.starttls()
+                    server.login(smtp_email, smtp_password)
+                    server.send_message(msg)
+                    server.quit()
+            except:
+                return (
+                    jsonify(
+                        {
+                            "status_code": 400,
+                            "result": f"failed send email to {email!r}",
+                        }
+                    ),
+                    400,
+                )
+            else:
+                return (
+                    jsonify(
+                        {
+                            "status_code": 201,
+                            "result": f"success send email to {email!r}",
+                        }
+                    ),
+                    201,
+                )

@@ -1,13 +1,15 @@
-from flask import Blueprint, request, jsonify
-from databases import UserDatabase
-from sqlalchemy import exc
-import models
+from flask import Blueprint, jsonify, request
+from flask_bcrypt import Bcrypt
+from databases import UserCRUD
+from sqlalchemy.exc import IntegrityError
+from utils import EmailNotValid
 
 register_router = Blueprint("api user register", __name__)
-user_database = UserDatabase()
+bcrypt = Bcrypt()
+user_database = UserCRUD()
 
 
-@register_router.post("/todoplus/v1/register")
+@register_router.post("/todoplus/v1/user/register")
 async def register():
     data = request.json
     username = data.get("username")
@@ -25,36 +27,28 @@ async def register():
             400,
         )
     try:
-        await user_database.insert(username=username, email=email, password=password)
-    except (
-        models.user.EmailRequired,
-        models.user.UsernameRequired,
-    ):
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        await user_database.insert(
+            username=username,
+            email=email,
+            password=hashed_password,
+        )
+    except (IntegrityError, ValueError):
         return (
             jsonify(
                 {
                     "status_code": 400,
-                    "message": "data is invalid",
+                    "message": f"failed register",
                 }
             ),
             400,
         )
-    except models.user.PasswordInvalid:
+    except EmailNotValid:
         return (
             jsonify(
                 {
                     "status_code": 400,
-                    "message": "password not secure",
-                }
-            ),
-            400,
-        )
-    except exc.IntegrityError:
-        return (
-            jsonify(
-                {
-                    "status_code": 400,
-                    "message": f"failed register {username!r}",
+                    "message": "email not valid",
                 }
             ),
             400,
