@@ -317,7 +317,7 @@ async def post_todo_list_is_done():
             jsonify(
                 {
                     "status_code": 201,
-                    "message": f"success update mark task {user.username!r}",
+                    "message": f"success mark all task {user.username!r}",
                 }
             ),
             201,
@@ -615,7 +615,7 @@ async def todo_list_post_bookmark():
             jsonify(
                 {
                     "status_code": 201,
-                    "message": f"success clear bookmark {user.username!r}",
+                    "message": f"success bookmark all task {user.username!r}",
                 }
             ),
             201,
