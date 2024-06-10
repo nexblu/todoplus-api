@@ -104,6 +104,19 @@ class IsPinCRUD(Database):
             ):
                 return True
             return False
+        elif category == "is_pin_id":
+            if (
+                data := TaskPinDatabase.query.filter(
+                    and_(
+                        TaskPinDatabase.task_id == task_id,
+                        TaskPinDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(TaskPinDatabase.created_at))
+                .first()
+            ):
+                return data.id
+            return None
         elif category == "all":
             if (
                 data := db_session.query(
@@ -120,7 +133,9 @@ class IsPinCRUD(Database):
             raise TaskNotFound
         elif category == "task_id":
             if (
-                data := db_session.query(UserDatabase, TodoListDatabase, TaskPinDatabase)
+                data := db_session.query(
+                    UserDatabase, TodoListDatabase, TaskPinDatabase
+                )
                 .select_from(UserDatabase)
                 .join(TodoListDatabase)
                 .join(TaskPinDatabase)

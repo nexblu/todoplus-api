@@ -106,6 +106,19 @@ class BookmarkCRUD(Database):
             ):
                 return True
             return False
+        elif category == "bookmark_id":
+            if (
+                data := BookmarkDatabase.query.filter(
+                    and_(
+                        BookmarkDatabase.task_id == task_id,
+                        BookmarkDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(BookmarkDatabase.created_at))
+                .first()
+            ):
+                return data.id
+            return None
         elif category == "task_id":
             if (
                 data := db_session.query(

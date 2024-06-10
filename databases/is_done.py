@@ -100,6 +100,19 @@ class IsDoneCRUD(Database):
             ):
                 return True
             return False
+        elif category == "is_done_id":
+            if (
+                data := IsDoneDatabase.query.filter(
+                    and_(
+                        IsDoneDatabase.task_id == task_id,
+                        IsDoneDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(IsDoneDatabase.created_at))
+                .first()
+            ):
+                return data.id
+            return None
         elif category == "all":
             if (
                 data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
