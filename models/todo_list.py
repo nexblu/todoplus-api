@@ -54,7 +54,4 @@ todo_list_table = Table(
     CheckConstraint("created_at >= 0", name="positive_created_at"),
 )
 
-mapper_registry.map_imperatively(
-    TodoListDatabase,
-    todo_list_table,
-)
+mapper_registry.map_imperatively(TodoListDatabase, todo_list_table)
