@@ -160,9 +160,7 @@ class IsDoneCRUD(Database):
                             "is_done_id", user_id=user_id, task_id=data.id
                         )
                     ):
-                        is_done = IsDoneDatabase(
-                            user_id, data.id, created_at, created_at
-                        )
+                        is_done = IsDoneDatabase(user_id, data.id, created_at)
                         db_session.add(is_done)
                 db_session.commit()
                 await self.user_database.update(
