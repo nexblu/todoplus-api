@@ -29,55 +29,67 @@ async def login():
             404,
         )
     else:
-        if bcrypt.check_password_hash(user.password, password):
-            access_token = jwt.encode(
-                {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                    "is_active": user.is_active,
-                    "is_admin": user.is_admin,
-                    "exp": datetime.datetime.now(datetime.timezone.utc).timestamp()
-                    + datetime.timedelta(minutes=5).total_seconds(),
-                },
-                access_token_key,
-                algorithm=algorithm,
-            )
-            refresh_token = jwt.encode(
-                {
-                    "user_id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                    "is_active": user.is_active,
-                    "is_admin": user.is_admin,
-                    "exp": datetime.datetime.now(datetime.timezone.utc).timestamp()
-                    + datetime.timedelta(days=25).total_seconds(),
-                },
-                refresh_token_key,
-                algorithm=algorithm,
-            )
+        try:
+            if bcrypt.check_password_hash(user.password, password):
+                access_token = jwt.encode(
+                    {
+                        "user_id": user.id,
+                        "username": user.username,
+                        "email": user.email,
+                        "is_active": user.is_active,
+                        "is_admin": user.is_admin,
+                        "exp": datetime.datetime.now(datetime.timezone.utc).timestamp()
+                        + datetime.timedelta(minutes=5).total_seconds(),
+                    },
+                    access_token_key,
+                    algorithm=algorithm,
+                )
+                refresh_token = jwt.encode(
+                    {
+                        "user_id": user.id,
+                        "username": user.username,
+                        "email": user.email,
+                        "is_active": user.is_active,
+                        "is_admin": user.is_admin,
+                        "exp": datetime.datetime.now(datetime.timezone.utc).timestamp()
+                        + datetime.timedelta(days=25).total_seconds(),
+                    },
+                    refresh_token_key,
+                    algorithm=algorithm,
+                )
+                return (
+                    jsonify(
+                        {
+                            "status_code": 200,
+                            "result": {
+                                "token": {
+                                    "access_token": access_token,
+                                    "refresh_token": refresh_token,
+                                }
+                            },
+                            "message": f"user {email!r} was found",
+                        }
+                    ),
+                    200,
+                )
             return (
                 jsonify(
                     {
-                        "status_code": 200,
-                        "result": {
-                            "token": {
-                                "access_token": access_token,
-                                "refresh_token": refresh_token,
-                            }
-                        },
-                        "message": f"user {email!r} was found",
+                        "status_code": 404,
+                        "result": None,
+                        "message": f"user {email!r} not found",
                     }
                 ),
-                200,
+                404,
             )
-        return (
-            jsonify(
-                {
-                    "status_code": 404,
-                    "result": None,
-                    "message": f"user {email!r} not found",
-                }
-            ),
-            404,
-        )
+        except TypeError:
+            return (
+                jsonify(
+                    {
+                        "status_code": 404,
+                        "result": None,
+                        "message": f"user {email!r} not found",
+                    }
+                ),
+                404,
+            )
