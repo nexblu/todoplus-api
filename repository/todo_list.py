@@ -13,9 +13,11 @@ class TodoListCRUD(Database):
         init_db()
         self.user_database = UserCRUD()
 
-    async def insert(self, user_id, task, tags, date):
+    async def insert(self, user_id, task, description, tags, date):
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        todo_list = TodoListDatabase(user_id, task, tags, date, created_at, created_at)
+        todo_list = TodoListDatabase(
+            user_id, task, description, tags, date, created_at, created_at
+        )
         db_session.add(todo_list)
         db_session.commit()
         await self.user_database.update(
