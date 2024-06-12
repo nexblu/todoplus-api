@@ -7,13 +7,14 @@ from flask_bcrypt import Bcrypt
 from flask import jsonify
 
 
-class LoginService(UserCRUD, Bcrypt):
+class LoginService:
     def __init__(self) -> None:
-        pass
+        self.user_database = UserCRUD()
+        self.bcrypt = Bcrypt()
 
     async def login(self, email, password):
         try:
-            user = await self.get("email", email=email)
+            user = await self.user_database.get("email", email=email)
         except UserNotFound:
             return (
                 jsonify(
@@ -26,7 +27,7 @@ class LoginService(UserCRUD, Bcrypt):
             )
         else:
             try:
-                if self.check_password_hash(user.password, password):
+                if self.bcrypt.check_password_hash(user.password, password):
                     access_token = jwt.encode(
                         {
                             "user_id": user.id,
