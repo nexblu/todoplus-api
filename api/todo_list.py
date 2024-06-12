@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from databases import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
+from repository import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
 from utils import token_required, TaskNotFound
 import datetime
 from sqlalchemy.exc import IntegrityError, DataError

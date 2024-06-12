@@ -1,6 +1,6 @@
 from sqlalchemy import Table, Column, Integer, String, Boolean, Float, CheckConstraint
 from sqlalchemy.orm import registry
-from databases import metadata, db_session
+from repository import metadata, db_session
 import re
 from utils import PasswordNotSecure, EmailNotValid
 from email_validator import validate_email, EmailNotValidError

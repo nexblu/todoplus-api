@@ -7,12 +7,12 @@ from sqlalchemy import (
     CheckConstraint,
 )
 from sqlalchemy.orm import registry
-from databases import metadata, db_session
+from repository import metadata, db_session
 
 mapper_registry = registry()
 
 
-class TaskPinDatabase:
+class IsDoneDatabase:
     query = db_session.query_property()
 
     def __init__(self, user_id, task_id, created_at):
@@ -21,11 +21,11 @@ class TaskPinDatabase:
         self.created_at = created_at
 
     def __repr__(self):
-        return f"<TaskPin '{self.user_id}'>"
+        return f"<IsDone '{self.user_id}'>"
 
 
-task_pin_table = Table(
-    "task_pin",
+is_done_table = Table(
+    "is_done",
     metadata,
     Column("id", Integer, primary_key=True),
     Column(
@@ -47,4 +47,4 @@ task_pin_table = Table(
     CheckConstraint("created_at >= 0", name="positive_created_at"),
 )
 
-mapper_registry.map_imperatively(TaskPinDatabase, task_pin_table)
+mapper_registry.map_imperatively(IsDoneDatabase, is_done_table)

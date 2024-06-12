@@ -23,7 +23,7 @@ def token_required():
             except jwt.exceptions.ExpiredSignatureError:
                 abort(401)
             else:
-                from databases import UserCRUD
+                from repository import UserCRUD
 
                 user_database = UserCRUD()
                 try:

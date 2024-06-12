@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_bcrypt import Bcrypt
-from databases import UserCRUD
+from repository import UserCRUD
 from sqlalchemy.exc import IntegrityError
 from utils import EmailNotValid
 

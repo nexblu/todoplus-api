@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from models import TodoListDatabase, UserDatabase
+from model import TodoListDatabase, UserDatabase
 from .database import Database
 from sqlalchemy import and_, desc
 import datetime

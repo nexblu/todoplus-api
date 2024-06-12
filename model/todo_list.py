@@ -8,7 +8,7 @@ from sqlalchemy import (
     CheckConstraint,
 )
 from sqlalchemy.orm import registry
-from databases import metadata, db_session
+from repository import metadata, db_session
 from sqlalchemy.dialects.postgresql import JSONB
 
 mapper_registry = registry()

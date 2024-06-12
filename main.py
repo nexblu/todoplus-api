@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from config import debug_mode, mongodb_url
-from databases import db_session
+from repository import db_session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from utils import (
@@ -13,11 +13,11 @@ from utils import (
     handle_403,
     handle_405,
 )
-from routers.register import register_router
-from routers.login import login_router
-from routers.todo_list import todo_list_router
-from routers.account_active import account_active_router
-from routers.refresh_token import refresh_token_router
+from api.register import register_router
+from api.login import login_router
+from api.todo_list import todo_list_router
+from api.account_active import account_active_router
+from api.refresh_token import refresh_token_router
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)

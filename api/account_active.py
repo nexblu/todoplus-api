@@ -1,4 +1,4 @@
-from databases import AccountActiveCRUD, UserCRUD
+from repository import AccountActiveCRUD, UserCRUD
 from flask import Blueprint, jsonify, request, render_template
 from utils import AccountActive, UserNotFound
 import smtplib

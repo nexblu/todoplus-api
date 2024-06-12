@@ -8,12 +8,12 @@ from sqlalchemy import (
     CheckConstraint,
 )
 from sqlalchemy.orm import registry
-from databases import metadata, db_session
+from repository import metadata, db_session
 
 mapper_registry = registry()
 
 
-class ResetPasswordDatabase:
+class AccountActiveDatabase:
     query = db_session.query_property()
 
     def __init__(self, user_id, token, created_at, expired_at):
@@ -23,11 +23,11 @@ class ResetPasswordDatabase:
         self.expired_at = expired_at
 
     def __repr__(self):
-        return f"<Reset Password '{self.user_id}'>"
+        return f"<Account Active '{self.user_id}'>"
 
 
-reset_password_table = Table(
-    "reset_password",
+account_active_table = Table(
+    "account_active",
     metadata,
     Column("id", Integer, primary_key=True),
     Column(
@@ -46,4 +46,4 @@ reset_password_table = Table(
     CheckConstraint("expired_at >= 0", name="positive_expired_at"),
 )
 
-mapper_registry.map_imperatively(ResetPasswordDatabase, reset_password_table)
+mapper_registry.map_imperatively(AccountActiveDatabase, account_active_table)
