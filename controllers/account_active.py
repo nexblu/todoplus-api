@@ -12,7 +12,6 @@ from config import (
     todoplus_url,
 )
 import datetime
-import traceback
 from sqlalchemy.exc import IntegrityError
 
 
@@ -22,14 +21,15 @@ class AccountActiveController:
         self.user_database = UserCRUD()
 
     async def email_verify(self, email):
+        if not email or email.isspace():
+            return jsonify({"errors": {"email": "email is empety"}}), 400
         try:
             user = await self.user_database.get("email", email=email)
         except UserNotFound:
             return (
                 jsonify(
                     {
-                        "status_code": 404,
-                        "message": f"user not found",
+                        "errors": {"email": f"user {email!r} not found"},
                     }
                 ),
                 404,
@@ -39,8 +39,7 @@ class AccountActiveController:
                 return (
                     jsonify(
                         {
-                            "status_code": 400,
-                            "message": f"user {email!r} is active",
+                            "errors": {"email": f"user {email!r} is active"},
                         }
                     ),
                     400,
@@ -59,14 +58,13 @@ class AccountActiveController:
                 return (
                     jsonify(
                         {
-                            "status_code": 400,
-                            "result": f"failed send email to {email!r}",
+                            "errors": {
+                                "email": f"user {email!r} already get link account active"
+                            },
                         }
                     ),
                     400,
                 )
-            except Exception:
-                traceback.print_exc()
             else:
                 msg = MIMEText(
                     f"""<h1>Hi, Welcome {email}</h1>
@@ -90,8 +88,7 @@ class AccountActiveController:
                     return (
                         jsonify(
                             {
-                                "status_code": 400,
-                                "result": f"failed send email to {email!r}",
+                                "errors": {"SMPTP": f"failed send email to {email!r}"},
                             }
                         ),
                         400,
@@ -100,8 +97,11 @@ class AccountActiveController:
                     return (
                         jsonify(
                             {
-                                "status_code": 201,
-                                "result": f"success send email to {email!r}",
+                                "data": {
+                                    "email": email,
+                                    "user_id": user.id,
+                                    "username": user.username,
+                                },
                             }
                         ),
                         201,
