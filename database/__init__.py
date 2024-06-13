@@ -6,3 +6,4 @@ from .account_active import *
 from .is_done import *
 from .is_pin import *
 from .bookmark import *
+from .comment import *

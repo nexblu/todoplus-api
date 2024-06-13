@@ -8,3 +8,4 @@ from .wallet import *
 from .task_pin import *
 from .is_done import *
 from .bookmark import *
+from .comment import *

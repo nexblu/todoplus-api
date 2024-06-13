@@ -8,3 +8,4 @@ from .is_pin import *
 from .refresh_token import *
 from .register import *
 from .reset_password import *
+from .comment import *

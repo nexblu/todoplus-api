@@ -21,6 +21,7 @@ from api.refresh_token import refresh_token_router
 from api.is_done import todo_list_is_done_router
 from api.bookmark import todo_list_bookmark_router
 from api.is_pin import todo_list_pinned_router
+from api.comment import todo_list_comment_router
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -55,6 +56,7 @@ app.register_blueprint(refresh_token_router)
 app.register_blueprint(todo_list_is_done_router)
 app.register_blueprint(todo_list_bookmark_router)
 app.register_blueprint(todo_list_pinned_router)
+app.register_blueprint(todo_list_comment_router)
 
 app.register_error_handler(429, handle_429)
 app.register_error_handler(404, handle_404)
