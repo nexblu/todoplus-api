@@ -1,8 +1,8 @@
 from flask import Blueprint, request
-from controllers import LoginService
+from controllers import LoginController
 
 login_router = Blueprint("api user login", __name__)
-login_service = LoginService()
+login_service = LoginController()
 
 
 @login_router.post("/todoplus/v1/user/login")

@@ -4,7 +4,7 @@ from utils import TaskNotFound
 from sqlalchemy.exc import IntegrityError
 
 
-class BookmarkService:
+class BookmarkController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()

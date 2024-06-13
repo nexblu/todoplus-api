@@ -7,7 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask import jsonify
 
 
-class LoginService:
+class LoginController:
     def __init__(self) -> None:
         self.user_database = UserCRUD()
         self.bcrypt = Bcrypt()

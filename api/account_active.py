@@ -1,8 +1,8 @@
 from flask import Blueprint, request
-from controllers import AccountActiveService
+from controllers import AccountActiveController
 
 account_active_router = Blueprint("api account active", __name__)
-account_active_service = AccountActiveService()
+account_active_service = AccountActiveController()
 
 
 @account_active_router.get("/todoplus/v1/user/email-verify/<string:token>")

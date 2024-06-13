@@ -16,7 +16,7 @@ import traceback
 from sqlalchemy.exc import IntegrityError
 
 
-class AccountActiveService:
+class AccountActiveController:
     def __init__(self) -> None:
         self.account_active_database = AccountActiveCRUD()
         self.user_database = UserCRUD()

@@ -1,9 +1,9 @@
 from flask import Blueprint, request
 from utils import token_required
-from controllers import TaskService
+from controllers import TaskController
 
 todo_list_router = Blueprint("api user task", __name__)
-task_service = TaskService()
+task_service = TaskController()
 
 
 @todo_list_router.post("/todoplus/v1/todolist")

@@ -7,7 +7,7 @@ from utils import TaskNotFound
 import traceback
 
 
-class TaskService:
+class TaskController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()
