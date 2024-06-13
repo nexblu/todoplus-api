@@ -69,6 +69,7 @@ class CommentController:
                     {
                         "data": [
                             {
+                                'avatar_url': user.avatar_url,
                                 "user_id": user.id,
                                 "task_id": comment.task_id,
                                 "comment_id": comment.id,
@@ -76,7 +77,7 @@ class CommentController:
                                 "created_at": comment.created_at,
                                 "updated_at": comment.updated_at,
                             }
-                            for comment in result
+                            for user, comment in result
                         ]
                     }
                 ),

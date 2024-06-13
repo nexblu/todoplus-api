@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from models import CommentDatabase
+from models import CommentDatabase, UserDatabase
 from .database import Database
 from sqlalchemy import desc, and_
 from utils import CommentNotFound
@@ -39,11 +39,11 @@ class CommentCRUD(Database):
         task_id = kwargs.get("task_id")
         if catageory == "task_id":
             if (
-                data := CommentDatabase.query.filter(
-                    and_(
-                        CommentDatabase.user_id == user_id,
-                        CommentDatabase.task_id == task_id,
-                    )
+                data := db_session.query(UserDatabase, CommentDatabase)
+                .select_from(UserDatabase)
+                .join(CommentDatabase)
+                .filter(
+                    and_(UserDatabase.id == user_id, CommentDatabase.task_id == task_id)
                 )
                 .order_by(desc(CommentDatabase.created_at))
                 .all()
