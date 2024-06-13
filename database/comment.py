@@ -1,6 +1,8 @@
 from .config import db_session, init_db
 from models import CommentDatabase
 from .database import Database
+from sqlalchemy import desc
+from utils import CommentNotFound
 
 
 class CommentCRUD(Database):
@@ -22,4 +24,12 @@ class CommentCRUD(Database):
         pass
 
     async def get(self, catageory, **kwargs):
-        pass
+        user_id = kwargs.get("user_id")
+        if catageory == "all":
+            if (
+                data := CommentDatabase.query.filter(CommentDatabase.user_id == user_id)
+                .order_by(desc(CommentDatabase.created_at))
+                .all()
+            ):
+                return data
+            raise CommentNotFound

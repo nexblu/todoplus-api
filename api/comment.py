@@ -14,3 +14,10 @@ async def todo_list_post_bookmark():
     comment = data.get("comment")
     task_id = data.get("task_id")
     return await comment_controller.add_comment(user, comment, task_id)
+
+
+@todo_list_comment_router.get("/todoplus/v1/todolist/comment")
+@token_required()
+async def todo_list_get_bookmark():
+    user = request.user
+    return await comment_controller.get_comment(user)

@@ -20,3 +20,9 @@ class TaskNotFound(Exception):
     def __init__(self, message="task not found"):
         self.message = message
         super().__init__(self.message)
+
+
+class CommentNotFound(Exception):
+    def __init__(self, message="comment not found"):
+        self.message = message
+        super().__init__(self.message)
