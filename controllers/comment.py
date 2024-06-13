@@ -10,12 +10,57 @@ class CommentController:
     def __init__(self) -> None:
         self.comment_database = CommentCRUD()
 
-    async def get_comment(self, user):
+    async def clear_comment_by_task_id(self, user, task_id):
+        if not isinstance(task_id, int) and task_id:
+            return jsonify({"errors": {"task_id": "task_id must be integer"}}), 400
+        else:
+            if not task_id > 0:
+                return (
+                    jsonify({"errors": {"task_id": "task_id must be greater than 0"}}),
+                    400,
+                )
         try:
-            result = await self.comment_database.get("all", user_id=user.id)
+            await self.comment_database.delete(
+                "task_id", user_id=user.id, task_id=task_id
+            )
         except CommentNotFound:
             return (
-                jsonify({"errors": f"comment '{user.id}' not found"}),
+                jsonify(
+                    {
+                        "errors": f"comment user '{user.id}' with task id '{task_id}' not found"
+                    }
+                ),
+                404,
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "status_code": 201,
+                        "message": f"success clear comment '{user.id}' with task id '{task_id}'",
+                    }
+                ),
+                201,
+            )
+
+    async def get_comment_by_task_id(self, user, task_id):
+        if not isinstance(task_id, int) and task_id:
+            return jsonify({"errors": {"task_id": "task_id must be integer"}}), 400
+        else:
+            if not task_id > 0:
+                return (
+                    jsonify({"errors": {"task_id": "task_id must be greater than 0"}}),
+                    400,
+                )
+        try:
+            result = await self.comment_database.get(
+                "task_id", user_id=user.id, task_id=task_id
+            )
+        except CommentNotFound:
+            return (
+                jsonify(
+                    {"errors": f"comment user '{user.id}' with '{task_id}' not found"}
+                ),
                 404,
             )
         else:
@@ -25,6 +70,7 @@ class CommentController:
                         "data": [
                             {
                                 "user_id": user.id,
+                                "task_id": comment.task_id,
                                 "comment_id": comment.id,
                                 "comment": comment.comment,
                                 "created_at": comment.created_at,
