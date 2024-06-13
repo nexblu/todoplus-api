@@ -12,6 +12,14 @@ class BookmarkController:
         self.bookmark_database = BookmarkCRUD()
 
     async def get_bookmark_by_id(self, user, task_id):
+        if not isinstance(task_id, int) and task_id:
+            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+        else:
+            if not task_id > 0:
+                return (
+                    jsonify({"errors": {"task_id": "task id must be greater than 0"}}),
+                    400,
+                )
         try:
             result = await self.bookmark_database.get(
                 "task_id", user_id=user.id, task_id=task_id
@@ -70,6 +78,14 @@ class BookmarkController:
             )
 
     async def delete_bookmark_by_id(self, user, task_id):
+        if not isinstance(task_id, int) and task_id:
+            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+        else:
+            if not task_id > 0:
+                return (
+                    jsonify({"errors": {"task_id": "task id must be greater than 0"}}),
+                    400,
+                )
         try:
             await self.bookmark_database.delete(
                 "task_id", user_id=user.id, task_id=task_id
@@ -96,6 +112,14 @@ class BookmarkController:
             )
 
     async def add_bookmark_by_id(self, user, task_id):
+        if not isinstance(task_id, int) and task_id:
+            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+        else:
+            if not task_id > 0:
+                return (
+                    jsonify({"errors": {"task_id": "task id must be greater than 0"}}),
+                    400,
+                )
         try:
             await self.bookmark_database.insert(user.id, task_id)
         except IntegrityError:

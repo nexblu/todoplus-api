@@ -12,7 +12,7 @@ class CommentController:
 
     async def clear_comment_by_task_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task_id must be integer"}}), 400
+            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
         else:
             if not task_id > 0:
                 return (
@@ -45,7 +45,7 @@ class CommentController:
 
     async def get_comment_by_task_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task_id must be integer"}}), 400
+            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
         else:
             if not task_id > 0:
                 return (
@@ -69,7 +69,7 @@ class CommentController:
                     {
                         "data": [
                             {
-                                'avatar_url': user.avatar_url,
+                                "avatar_url": user.avatar_url,
                                 "user_id": user.id,
                                 "task_id": comment.task_id,
                                 "comment_id": comment.id,
@@ -91,7 +91,7 @@ class CommentController:
                 jsonify(
                     {
                         "errors": {
-                            "task_id": "task_id is empety",
+                            "task_id": "task id is empety",
                             "comment": "comment is empety",
                         }
                     }
@@ -101,9 +101,9 @@ class CommentController:
         if not comment or comment.isspace():
             return jsonify({"errors": {"comment": "comment is empety"}}), 400
         if not task_id:
-            return jsonify({"errors": {"task_id": "task_id is empety"}}), 400
+            return jsonify({"errors": {"task_id": "task id is empety"}}), 400
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task_id must be integer"}}), 400
+            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
         else:
             if not task_id > 0:
                 return (
