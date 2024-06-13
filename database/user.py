@@ -23,11 +23,14 @@ class UserCRUD(Database):
     async def get(self, type, **kwargs):
         email = kwargs.get("email")
         if type == "email":
-            if user := UserDatabase.query.filter(
-                func.lower(UserDatabase.email) == email.lower()
-            ).first():
-                return user
-            raise UserNotFound
+            try:
+                if user := UserDatabase.query.filter(
+                    func.lower(UserDatabase.email) == email.lower()
+                ).first():
+                    return user
+                raise UserNotFound
+            except:
+                raise UserNotFound
 
     async def update(self, category, **kwargs):
         is_active = kwargs.get("is_active")
