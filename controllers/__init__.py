@@ -7,3 +7,4 @@ from .is_done_controller import *
 from .is_pin_controller import *
 from .refresh_token import *
 from .register_controller import *
+from .reset_password_controller import *
