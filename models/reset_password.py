@@ -8,7 +8,7 @@ from sqlalchemy import (
     CheckConstraint,
 )
 from sqlalchemy.orm import registry
-from repository import metadata, db_session
+from database import metadata, db_session
 
 mapper_registry = registry()
 

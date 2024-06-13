@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from model import AccountActiveDatabase
+from models import AccountActiveDatabase
 from .database import Database
 from sqlalchemy import and_, desc
 from utils import UserNotFound

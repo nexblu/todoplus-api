@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from model import IsDoneDatabase, TodoListDatabase, UserDatabase
+from models import TaskPinDatabase, UserDatabase, TodoListDatabase
 from .database import Database
 import datetime
 from sqlalchemy import desc, and_
@@ -8,7 +8,7 @@ from .user import UserCRUD
 from .todo_list import TodoListCRUD
 
 
-class IsDoneCRUD(Database):
+class IsPinCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
@@ -27,7 +27,7 @@ class IsDoneCRUD(Database):
             .first()
         ):
             created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            is_done = IsDoneDatabase(user_id, task_id, created_at)
+            is_done = TaskPinDatabase(user_id, task_id, created_at)
             db_session.add(is_done)
             await self.user_database.update(
                 "updated_at", updated_at=created_at, user_id=user_id
@@ -48,10 +48,12 @@ class IsDoneCRUD(Database):
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         if category == "all":
             if (
-                data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
+                data := db_session.query(
+                    UserDatabase, TodoListDatabase, TaskPinDatabase
+                )
                 .select_from(UserDatabase)
                 .join(TodoListDatabase)
-                .join(IsDoneDatabase)
+                .join(TaskPinDatabase)
                 .filter(UserDatabase.id == user_id)
                 .order_by(desc(TodoListDatabase.created_at))
                 .all()
@@ -69,12 +71,14 @@ class IsDoneCRUD(Database):
             raise TaskNotFound
         elif category == "task_id":
             if (
-                data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
+                data := db_session.query(
+                    UserDatabase, TodoListDatabase, TaskPinDatabase
+                )
                 .select_from(UserDatabase)
                 .join(TodoListDatabase)
-                .join(IsDoneDatabase)
+                .join(TaskPinDatabase)
                 .filter(
-                    and_(UserDatabase.id == user_id, IsDoneDatabase.task_id == task_id)
+                    and_(UserDatabase.id == user_id, TaskPinDatabase.task_id == task_id)
                 )
                 .order_by(desc(TodoListDatabase.created_at))
                 .first()
@@ -90,38 +94,40 @@ class IsDoneCRUD(Database):
     async def get(self, category, **kwargs):
         task_id = kwargs.get("task_id")
         user_id = kwargs.get("user_id")
-        if category == "is_done":
+        if category == "is_pin":
             if (
-                data := IsDoneDatabase.query.filter(
+                data := TaskPinDatabase.query.filter(
                     and_(
-                        IsDoneDatabase.task_id == task_id,
-                        IsDoneDatabase.user_id == user_id,
+                        TaskPinDatabase.task_id == task_id,
+                        TaskPinDatabase.user_id == user_id,
                     )
                 )
-                .order_by(desc(IsDoneDatabase.created_at))
+                .order_by(desc(TaskPinDatabase.created_at))
                 .first()
             ):
                 return True
             return False
-        elif category == "is_done_id":
+        elif category == "is_pin_id":
             if (
-                data := IsDoneDatabase.query.filter(
+                data := TaskPinDatabase.query.filter(
                     and_(
-                        IsDoneDatabase.task_id == task_id,
-                        IsDoneDatabase.user_id == user_id,
+                        TaskPinDatabase.task_id == task_id,
+                        TaskPinDatabase.user_id == user_id,
                     )
                 )
-                .order_by(desc(IsDoneDatabase.created_at))
+                .order_by(desc(TaskPinDatabase.created_at))
                 .first()
             ):
                 return data.id
             return None
         elif category == "all":
             if (
-                data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
+                data := db_session.query(
+                    UserDatabase, TodoListDatabase, TaskPinDatabase
+                )
                 .select_from(UserDatabase)
                 .join(TodoListDatabase)
-                .join(IsDoneDatabase)
+                .join(TaskPinDatabase)
                 .filter(UserDatabase.id == user_id)
                 .order_by(desc(TodoListDatabase.created_at))
                 .all()
@@ -130,12 +136,14 @@ class IsDoneCRUD(Database):
             raise TaskNotFound
         elif category == "task_id":
             if (
-                data := db_session.query(UserDatabase, TodoListDatabase, IsDoneDatabase)
+                data := db_session.query(
+                    UserDatabase, TodoListDatabase, TaskPinDatabase
+                )
                 .select_from(UserDatabase)
                 .join(TodoListDatabase)
-                .join(IsDoneDatabase)
+                .join(TaskPinDatabase)
                 .filter(
-                    and_(UserDatabase.id == user_id, IsDoneDatabase.task_id == task_id)
+                    and_(UserDatabase.id == user_id, TaskPinDatabase.task_id == task_id)
                 )
                 .order_by(desc(TodoListDatabase.created_at))
                 .first()
@@ -157,10 +165,10 @@ class IsDoneCRUD(Database):
                 for data in todo:
                     if not (
                         is_done := await self.get(
-                            "is_done_id", user_id=user_id, task_id=data.id
+                            "is_pin_id", user_id=user_id, task_id=data.id
                         )
                     ):
-                        is_done = IsDoneDatabase(user_id, data.id, created_at)
+                        is_done = TaskPinDatabase(user_id, data.id, created_at)
                         db_session.add(is_done)
                 db_session.commit()
                 await self.user_database.update(

@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from service import LoginService
+from controllers import LoginService
 
 login_router = Blueprint("api user login", __name__)
 login_service = LoginService()

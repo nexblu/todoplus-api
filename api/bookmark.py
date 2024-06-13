@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from utils import token_required
-from service import BookmarkService
+from controllers import BookmarkService
 
 todo_list_bookmark_router = Blueprint("api user task bookmark", __name__)
 bookmark_service = BookmarkService()

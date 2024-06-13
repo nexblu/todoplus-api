@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from model import UserDatabase
+from models import UserDatabase
 from sqlalchemy import and_, func, or_
 from .database import Database
 import datetime

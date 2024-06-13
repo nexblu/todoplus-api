@@ -1,4 +1,4 @@
-from repository import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
+from database import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
 from flask import jsonify
 from utils import TaskNotFound
 from sqlalchemy.exc import IntegrityError

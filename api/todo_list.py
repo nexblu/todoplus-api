@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from utils import token_required
-from service import TaskService
+from controllers import TaskService
 
 todo_list_router = Blueprint("api user task", __name__)
 task_service = TaskService()

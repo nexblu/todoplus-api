@@ -7,12 +7,12 @@ from sqlalchemy import (
     CheckConstraint,
 )
 from sqlalchemy.orm import registry
-from repository import metadata, db_session
+from database import metadata, db_session
 
 mapper_registry = registry()
 
 
-class BookmarkDatabase:
+class TaskPinDatabase:
     query = db_session.query_property()
 
     def __init__(self, user_id, task_id, created_at):
@@ -21,11 +21,11 @@ class BookmarkDatabase:
         self.created_at = created_at
 
     def __repr__(self):
-        return f"<Bookmark '{self.user_id}'>"
+        return f"<TaskPin '{self.user_id}'>"
 
 
-bookmark_table = Table(
-    "bookmark",
+task_pin_table = Table(
+    "task_pin",
     metadata,
     Column("id", Integer, primary_key=True),
     Column(
@@ -47,4 +47,4 @@ bookmark_table = Table(
     CheckConstraint("created_at >= 0", name="positive_created_at"),
 )
 
-mapper_registry.map_imperatively(BookmarkDatabase, bookmark_table)
+mapper_registry.map_imperatively(TaskPinDatabase, task_pin_table)

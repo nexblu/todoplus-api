@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from repository import UserDatabase
+from database import UserDatabase
 from utils import token_required
 
 user_router = Blueprint("api user", __name__)

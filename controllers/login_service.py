@@ -2,7 +2,7 @@ from utils import UserNotFound
 from config import access_token_key, algorithm, refresh_token_key
 import jwt
 import datetime
-from repository import UserCRUD
+from database import UserCRUD
 from flask_bcrypt import Bcrypt
 from flask import jsonify
 

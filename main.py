@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from config import debug_mode, mongodb_url
-from repository import db_session
+from database import db_session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from utils import (

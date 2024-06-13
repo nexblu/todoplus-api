@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from model import ResetPasswordDatabase
+from models import ResetPasswordDatabase
 from .database import Database
 from sqlalchemy import func, and_
 import datetime

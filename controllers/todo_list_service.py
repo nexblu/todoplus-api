@@ -1,5 +1,5 @@
 import datetime
-from repository import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
+from database import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
 from flask import jsonify
 import datetime
 from sqlalchemy.exc import IntegrityError, DataError

@@ -10,9 +10,9 @@ from config import (
     api_url,
     todoplus_url,
 )
-from repository import UserDatabase, ResetPasswordDatabase
+from database import UserDatabase, ResetPasswordDatabase
 from sqlalchemy import exc
-import model
+import models
 
 reset_router = Blueprint("route reset password", __name__)
 user_database = UserDatabase()
@@ -83,7 +83,7 @@ async def email_reset_password():
             ),
             400,
         )
-    except model.reset_password.EmailRequired:
+    except models.reset_password.EmailRequired:
         return (
             jsonify(
                 {
