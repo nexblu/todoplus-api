@@ -2,7 +2,6 @@ import datetime
 from database import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
 from flask import jsonify
 import datetime
-from sqlalchemy.exc import IntegrityError, DataError
 from utils import TaskNotFound, Miscellaneous
 
 
