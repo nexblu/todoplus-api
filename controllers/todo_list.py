@@ -143,8 +143,8 @@ class TaskController:
 
     async def delete_task(self, user):
         try:
-            data = await self.todo_list_database.get(
-                "all",
+            await self.todo_list_database.delete(
+                "clear",
                 user_id=user.id,
             )
         except TaskNotFound:
@@ -170,50 +170,11 @@ class TaskController:
                         "success": True,
                         "status_code": 200,
                         "message": f"data {user.username!r} was found",
-                        "data": [
-                            {
-                                "user_id": author.id,
-                                "username": author.username,
-                                "email": user.email,
-                                "task_id": todo_list.id,
-                                "task": todo_list.task,
-                                "date": todo_list.date,
-                                "tags": todo_list.tags,
-                                "is_done": await self.is_done_database.get(
-                                    "is_done",
-                                    task_id=todo_list.id,
-                                    user_id=author.id,
-                                ),
-                                "is_done_id": await self.is_done_database.get(
-                                    "is_done_id",
-                                    task_id=todo_list.id,
-                                    user_id=author.id,
-                                ),
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin",
-                                    task_id=todo_list.id,
-                                    user_id=author.id,
-                                ),
-                                "is_pin_id": await self.is_pin_database.get(
-                                    "is_pin_id",
-                                    task_id=todo_list.id,
-                                    user_id=author.id,
-                                ),
-                                "bookmark": await self.bookmark_database.get(
-                                    "bookmark",
-                                    task_id=todo_list.id,
-                                    user_id=author.id,
-                                ),
-                                "bookmark_id": await self.bookmark_database.get(
-                                    "bookmark_id",
-                                    task_id=todo_list.id,
-                                    user_id=author.id,
-                                ),
-                                "updated_at": todo_list.updated_at,
-                                "created_at": todo_list.created_at,
-                            }
-                            for author, todo_list in data
-                        ],
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
                     },
                 ),
                 200,
