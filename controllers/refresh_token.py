@@ -12,6 +12,20 @@ class RefreshTokenController:
         self.bcrypt = Bcrypt()
 
     async def refresh_token(token):
+        if not token or token.isspace():
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {
+                            "token": "token is empety",
+                        },
+                        "data": {"token": token},
+                    }
+                ),
+                400,
+            )
         try:
             decoded_token = jwt.decode(
                 refresh_token, refresh_token_key, algorithms=algorithm
@@ -20,9 +34,10 @@ class RefreshTokenController:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 400,
-                        "result": None,
                         "message": f"token invalid",
+                        "data": {"token": token},
                     }
                 ),
                 400,
@@ -57,14 +72,13 @@ class RefreshTokenController:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
-                        "result": {
-                            "token": {
-                                "access_token": access_token,
-                                "refresh_token": refresh_token,
-                            }
+                        "message": f"create new token",
+                        "data": {
+                            "access_token": access_token,
+                            "refresh_token": refresh_token,
                         },
-                        "message": f"token is valid",
                     }
                 ),
                 201,

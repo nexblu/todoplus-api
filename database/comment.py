@@ -16,6 +16,7 @@ class CommentCRUD(Database):
         )
         db_session.add(comment_database)
         db_session.commit()
+        return comment_database
 
     async def update(self, catageory, **kwargs):
         pass

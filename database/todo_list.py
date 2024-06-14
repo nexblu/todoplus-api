@@ -145,7 +145,7 @@ class TodoListCRUD(Database):
                 task.updated_at = created_at
                 user.updated_at = created_at
                 db_session.commit()
-                return
+                return task
             raise TaskNotFound
         # elif type == "bookmark":
         #     if todo := TodoListDatabase.query.filter(

@@ -3,7 +3,7 @@ from models import IsDoneDatabase, TodoListDatabase, UserDatabase
 from .database import Database
 import datetime
 from sqlalchemy import desc, and_
-from utils import TaskNotFound
+from utils import TaskNotFound, FailedIsDone
 from .user import UserCRUD
 from .todo_list import TodoListCRUD
 
@@ -39,7 +39,7 @@ class IsDoneCRUD(Database):
                 task_id=task_id,
             )
             db_session.commit()
-            return
+            return is_done
         raise TaskNotFound
 
     async def delete(self, category, **kwargs):
@@ -154,6 +154,7 @@ class IsDoneCRUD(Database):
                 .order_by(desc(TodoListDatabase.created_at))
                 .all()
             ):
+                arr = []
                 for data in todo:
                     if not (
                         is_done := await self.get(
@@ -162,12 +163,15 @@ class IsDoneCRUD(Database):
                     ):
                         is_done = IsDoneDatabase(user_id, data.id, created_at)
                         db_session.add(is_done)
-                db_session.commit()
-                await self.user_database.update(
-                    "updated_at", updated_at=created_at, user_id=user_id
-                )
-                await self.todo_list_database.update(
-                    "updated_at", updated_at=created_at, user_id=user_id
-                )
-                return
+                        arr.append(is_done)
+                if arr:
+                    db_session.commit()
+                    await self.user_database.update(
+                        "updated_at", updated_at=created_at, user_id=user_id
+                    )
+                    await self.todo_list_database.update(
+                        "updated_at", updated_at=created_at, user_id=user_id
+                    )
+                    return arr
+                raise FailedIsDone
             raise TaskNotFound

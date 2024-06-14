@@ -1,5 +1,5 @@
 from database import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
-from utils import TaskNotFound
+from utils import TaskNotFound, FailedPinned
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
 
@@ -13,11 +13,38 @@ class IsPinController:
 
     async def get_is_pin_by_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id must be integer"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         else:
             if not task_id > 0:
                 return (
-                    jsonify({"errors": {"task_id": "task id must be greater than 0"}}),
+                    jsonify(
+                        {
+                            "success": False,
+                            "status_code": 400,
+                            "message": {"task_id": "task id must be greater than 0"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": task_id,
+                            },
+                        }
+                    ),
                     400,
                 )
         try:
@@ -28,9 +55,15 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 404,
-                        "message": f"task '{task_id}' not found",
-                        "result": None,
+                        "message": f"task id '{task_id}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 404,
@@ -40,12 +73,14 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 200,
                         "message": f"data {user.username!r} was found",
                         "result": {
                             "task": {
                                 "user_id": author.id,
                                 "username": author.username,
+                                "email": user.email,
                                 "task_id": todo_list.id,
                                 "task": todo_list.task,
                                 "date": todo_list.date,
@@ -81,11 +116,38 @@ class IsPinController:
 
     async def delete_is_pin_by_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id must be integer"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         else:
             if not task_id > 0:
                 return (
-                    jsonify({"errors": {"task_id": "task id must be greater than 0"}}),
+                    jsonify(
+                        {
+                            "success": False,
+                            "status_code": 400,
+                            "message": {"task_id": "task id must be greater than 0"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": task_id,
+                            },
+                        }
+                    ),
                     400,
                 )
         try:
@@ -96,8 +158,15 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 404,
-                        "message": f"task '{task_id}' not found",
+                        "message": f"task id '{task_id}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 404,
@@ -106,8 +175,15 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
                         "message": f"success remove pinned '{task_id}'",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 201,
@@ -115,21 +191,55 @@ class IsPinController:
 
     async def add_is_pin_by_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id must be integer"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         else:
             if not task_id > 0:
                 return (
-                    jsonify({"errors": {"task_id": "task id must be greater than 0"}}),
+                    jsonify(
+                        {
+                            "success": False,
+                            "status_code": 400,
+                            "message": {"task_id": "task id must be greater than 0"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": task_id,
+                            },
+                        }
+                    ),
                     400,
                 )
         try:
-            await self.is_pin_database.insert(user.id, task_id)
+            result = await self.is_pin_database.insert(user.id, task_id)
         except IntegrityError:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 400,
-                        "message": f"task '{task_id}' already pinned",
+                        "message": f"task id '{task_id}' already pinned",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 400,
@@ -138,18 +248,34 @@ class IsPinController:
             return (
                 jsonify(
                     {
-                        "status_code": 404,
-                        "message": f"task '{task_id}' not found",
+                        "success": False,
+                        "status_code": 400,
+                        "message": f"task id '{task_id}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
-                404,
+                400,
             )
         else:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
-                        "message": f"success pinned task '{task_id}'",
+                        "message": f"success pinned task id '{task_id}'",
+                        "data": {
+                            "user_id": result.user_id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": result.task_id,
+                            "is_pin_id": result.id,
+                            "created_at": result.created_at,
+                        },
                     }
                 ),
                 201,
@@ -157,23 +283,57 @@ class IsPinController:
 
     async def add_is_pin(self, user):
         try:
-            await self.is_pin_database.update("all", user_id=user.id)
+            result = await self.is_pin_database.update("all", user_id=user.id)
         except TaskNotFound:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 404,
-                        "message": f"task {user.username!r} not found",
+                        "message": f"task user '{user.username!r}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
                     }
                 ),
                 404,
+            )
+        except FailedPinned:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": f"failed pinned all task user '{user.username!r}'",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
+                    }
+                ),
+                400,
             )
         else:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
-                        "message": f"success pinned all task {user.username!r}",
+                        "message": f"success pinned all task user {user.username!r}",
+                        "data": [
+                            {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": data.task_id,
+                                "is_pin_id": data.id,
+                                "created_at": data.created_at,
+                            }
+                            for data in result
+                        ],
                     }
                 ),
                 201,
@@ -186,8 +346,14 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 404,
-                        "message": f"task {user.username!r} not found",
+                        "message": f"task user '{user.username!r}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
                     }
                 ),
                 404,
@@ -196,8 +362,14 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
-                        "message": f"success clear bookmark {user.username!r}",
+                        "message": f"success clear task pinned '{user.username!r}'",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
                     }
                 ),
                 201,
@@ -210,8 +382,14 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 404,
-                        "message": f"task {user.username!r} not found",
+                        "message": f"task user '{user.username!r}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                        },
                     }
                 ),
                 404,
@@ -220,50 +398,50 @@ class IsPinController:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 200,
                         "message": f"data {user.username!r} was found",
-                        "result": {
-                            "task": [
-                                {
-                                    "user_id": author.id,
-                                    "username": author.username,
-                                    "task_id": todo_list.id,
-                                    "task": todo_list.task,
-                                    "date": todo_list.date,
-                                    "tags": todo_list.tags,
-                                    "is_done": await self.is_done_database.get(
-                                        "is_done",
-                                        task_id=todo_list.id,
-                                        user_id=author.id,
-                                    ),
-                                    "is_done_id": await self.is_done_database.get(
-                                        "is_done_id",
-                                        task_id=todo_list.id,
-                                        user_id=author.id,
-                                    ),
-                                    "is_pin": await self.is_pin_database.get(
-                                        "is_pin",
-                                        task_id=todo_list.id,
-                                        user_id=author.id,
-                                    ),
-                                    "is_pin_id": pinned.id,
-                                    "bookmark": await self.bookmark_database.get(
-                                        "bookmark",
-                                        task_id=todo_list.id,
-                                        user_id=author.id,
-                                    ),
-                                    "bookmark_id": await self.bookmark_database.get(
-                                        "bookmark_id",
-                                        task_id=todo_list.id,
-                                        user_id=author.id,
-                                    ),
-                                    "updated_at": todo_list.updated_at,
-                                    "created_at": todo_list.created_at,
-                                }
-                                for author, todo_list, pinned in data
-                            ],
-                        },
-                    }
+                        "data": [
+                            {
+                                "user_id": author.id,
+                                "username": author.username,
+                                "email": user.email,
+                                "task_id": todo_list.id,
+                                "task": todo_list.task,
+                                "date": todo_list.date,
+                                "tags": todo_list.tags,
+                                "is_done": await self.is_done_database.get(
+                                    "is_done",
+                                    task_id=todo_list.id,
+                                    user_id=author.id,
+                                ),
+                                "is_done_id": await self.is_done_database.get(
+                                    "is_done_id",
+                                    task_id=todo_list.id,
+                                    user_id=author.id,
+                                ),
+                                "is_pin": await self.is_pin_database.get(
+                                    "is_pin",
+                                    task_id=todo_list.id,
+                                    user_id=author.id,
+                                ),
+                                "is_pin_id": pinned.id,
+                                "bookmark": await self.bookmark_database.get(
+                                    "bookmark",
+                                    task_id=todo_list.id,
+                                    user_id=author.id,
+                                ),
+                                "bookmark_id": await self.bookmark_database.get(
+                                    "bookmark_id",
+                                    task_id=todo_list.id,
+                                    user_id=author.id,
+                                ),
+                                "updated_at": todo_list.updated_at,
+                                "created_at": todo_list.created_at,
+                            }
+                            for author, todo_list, pinned in data
+                        ],
+                    },
                 ),
                 200,
             )

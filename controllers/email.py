@@ -10,14 +10,24 @@ class EmailController:
             email = emailinfo.normalized
         except EmailNotValidError as e:
             return (
-                jsonify({"errors": {"email": f"{email} invalid"}}),
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": f"{email!r} not valid",
+                        "data": {"email": email},
+                    }
+                ),
                 400,
             )
         else:
             return (
                 jsonify(
                     {
-                        "message": f"email is valid {email!r}",
+                        "success": True,
+                        "status_code": 200,
+                        "message": f"{email!r} is valid",
+                        "data": {"email": email},
                     }
                 ),
                 200,

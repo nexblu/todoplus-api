@@ -3,7 +3,7 @@ from models import BookmarkDatabase, UserDatabase, TodoListDatabase
 from .database import Database
 import datetime
 from sqlalchemy import desc, and_
-from utils import TaskNotFound
+from utils import TaskNotFound, FailedBookmark
 from .user import UserCRUD
 from .todo_list import TodoListCRUD
 
@@ -27,8 +27,8 @@ class BookmarkCRUD(Database):
             .first()
         ):
             created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            is_done = BookmarkDatabase(user_id, task_id, created_at)
-            db_session.add(is_done)
+            bookmark = BookmarkDatabase(user_id, task_id, created_at)
+            db_session.add(bookmark)
             await self.user_database.update(
                 "updated_at", updated_at=created_at, user_id=user_id
             )
@@ -39,7 +39,7 @@ class BookmarkCRUD(Database):
                 task_id=task_id,
             )
             db_session.commit()
-            return
+            return bookmark
         raise TaskNotFound
 
     async def delete(self, category, **kwargs):
@@ -159,6 +159,7 @@ class BookmarkCRUD(Database):
         user_id = kwargs.get("user_id")
         created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
         if category == "all":
+            arr = []
             if (
                 todo := TodoListDatabase.query.filter(
                     TodoListDatabase.user_id == user_id
@@ -174,12 +175,15 @@ class BookmarkCRUD(Database):
                     ):
                         bookmark = BookmarkDatabase(user_id, data.id, created_at)
                         db_session.add(bookmark)
-                db_session.commit()
-                await self.user_database.update(
-                    "updated_at", updated_at=created_at, user_id=user_id
-                )
-                await self.todo_list_database.update(
-                    "updated_at", updated_at=created_at, user_id=user_id
-                )
-                return
+                        arr.append(bookmark)
+                if arr:
+                    db_session.commit()
+                    await self.user_database.update(
+                        "updated_at", updated_at=created_at, user_id=user_id
+                    )
+                    await self.todo_list_database.update(
+                        "updated_at", updated_at=created_at, user_id=user_id
+                    )
+                    return arr
+                raise FailedBookmark
             raise TaskNotFound

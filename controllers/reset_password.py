@@ -66,35 +66,29 @@ class ResetPasswordController:
         return "Invalid token"
 
     async def reset_password(self, email):
+        if not email or email.isspace():
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"email": "email is empety"},
+                        "data": {"email": email},
+                    }
+                ),
+                400,
+            )
         token = await TokenResetPassword.insert(email)
         try:
-            await self.token_database.insert(email, token)
+            user = await self.token_database.insert(email, token)
         except IntegrityError:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 400,
-                        "message": f"failed send email to {email!r}",
-                    }
-                ),
-                400,
-            )
-        except models.reset_password.EmailRequired:
-            return (
-                jsonify(
-                    {
-                        "status_code": 400,
-                        "message": f"data is invalid",
-                    }
-                ),
-                400,
-            )
-        except Exception:
-            return (
-                jsonify(
-                    {
-                        "status_code": 400,
-                        "message": f"bad request",
+                        "message": f"link reset password already send to {email!r}",
+                        "data": {"email": email},
                     }
                 ),
                 400,
@@ -121,8 +115,14 @@ class ResetPasswordController:
                 return (
                     jsonify(
                         {
+                            "success": False,
                             "status_code": 400,
-                            "message": f"failed send email to {email!r}",
+                            "message": {"SMPTP": f"failed send email to {email!r}"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                            },
                         }
                     ),
                     400,
@@ -131,8 +131,15 @@ class ResetPasswordController:
                 return (
                     jsonify(
                         {
+                            "success": True,
                             "status_code": 201,
-                            "message": f"success send email to {email!r}",
+                            "message": f"success send link reset password to {email!r}",
+                            "data": {
+                                "email": email,
+                                "user_id": user.id,
+                                "username": user.username,
+                                "link": f"{api_url}/todoplus/v1/user/reset/reset-password/{token}",
+                            },
                         }
                     ),
                     201,

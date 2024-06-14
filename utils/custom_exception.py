@@ -26,3 +26,21 @@ class CommentNotFound(Exception):
     def __init__(self, message="comment not found"):
         self.message = message
         super().__init__(self.message)
+
+
+class FailedBookmark(Exception):
+    def __init__(self, message="failed bookmark"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class FailedIsDone(Exception):
+    def __init__(self, message="failed mark as done"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class FailedPinned(Exception):
+    def __init__(self, message="failed pinned"):
+        self.message = message
+        super().__init__(self.message)
