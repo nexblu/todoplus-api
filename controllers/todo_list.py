@@ -14,7 +14,7 @@ class TaskController:
         self.bookmark_database = BookmarkCRUD()
 
     async def add_task(self, user, task, description, tags):
-        if errors := await Miscellaneous.validate_register(task, description, tags):
+        if errors := await Miscellaneous.validate_task(task, tags):
             return (
                 jsonify(
                     {

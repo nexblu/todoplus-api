@@ -15,12 +15,13 @@ class Miscellaneous:
         return errors
 
     @staticmethod
-    async def validate_task(task, description, tags):
+    async def validate_task(task, tags):
         errors = {}
         if not task or task.isspace():
             errors["task"] = "task is empty"
-        if not description or description.isspace():
-            errors["description"] = "description is empty"
-        if not tags or tags.isspace():
-            errors["password"] = "password is empty"
+        if not isinstance(tags, list):
+            errors["tags"] = "tags must be array"
+        else:
+            if not tags or len(tags) == 0:
+                errors["password"] = "password is empty"
         return errors
