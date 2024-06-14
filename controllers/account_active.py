@@ -22,14 +22,27 @@ class AccountActiveController:
 
     async def email_verify(self, email):
         if not email or email.isspace():
-            return jsonify({"errors": {"email": "email is empety"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"email": "email is empety"},
+                        "data": {"email": email},
+                    }
+                ),
+                400,
+            )
         try:
             user = await self.user_database.get("email", email=email)
         except UserNotFound:
             return (
                 jsonify(
                     {
-                        "errors": {"email": f"user {email!r} not found"},
+                        "success": False,
+                        "status_code": 404,
+                        "message": f"user {email!r} not found",
+                        "data": {"email": email},
                     }
                 ),
                 404,
@@ -39,7 +52,14 @@ class AccountActiveController:
                 return (
                     jsonify(
                         {
-                            "errors": {"email": f"user {email!r} is active"},
+                            "success": False,
+                            "status_code": 400,
+                            "message": f"user {email!r} is active",
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                            },
                         }
                     ),
                     400,
@@ -58,8 +78,13 @@ class AccountActiveController:
                 return (
                     jsonify(
                         {
-                            "errors": {
-                                "email": f"user {email!r} already get link account active"
+                            "success": False,
+                            "status_code": 400,
+                            "message": f"user {email!r} already get link account active",
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
                             },
                         }
                     ),
@@ -88,7 +113,14 @@ class AccountActiveController:
                     return (
                         jsonify(
                             {
-                                "errors": {"SMPTP": f"failed send email to {email!r}"},
+                                "success": False,
+                                "status_code": 400,
+                                "message": {"SMPTP": f"failed send email to {email!r}"},
+                                "data": {
+                                    "user_id": user.id,
+                                    "username": user.username,
+                                    "email": user.email,
+                                },
                             }
                         ),
                         400,
@@ -97,10 +129,14 @@ class AccountActiveController:
                     return (
                         jsonify(
                             {
+                                "success": True,
+                                "status_code": 201,
+                                "message": f"success send link email active to {email!r}",
                                 "data": {
                                     "email": email,
                                     "user_id": user.id,
                                     "username": user.username,
+                                    "link": f"{api_url}/todoplus/v1/user/email-verify/{token}",
                                 },
                             }
                         ),

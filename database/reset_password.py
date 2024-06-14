@@ -14,6 +14,7 @@ class ResetPasswordCRUD(Database):
         reset_password = ResetPasswordDatabase(email, token)
         db_session.add(reset_password)
         db_session.commit()
+        return reset_password
 
     async def delete(self, type, **kwargs):
         email = kwargs.get("email")

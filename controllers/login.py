@@ -19,8 +19,10 @@ class LoginController:
             return (
                 jsonify(
                     {
+                        "success": False,
                         "status_code": 404,
                         "message": f"user {email!r} not found",
+                        "data": {"email": email, "password": password},
                     }
                 ),
                 404,
@@ -61,14 +63,15 @@ class LoginController:
                     return (
                         jsonify(
                             {
+                                "success": True,
                                 "status_code": 200,
-                                "result": {
-                                    "token": {
-                                        "access_token": access_token,
-                                        "refresh_token": refresh_token,
-                                    }
-                                },
                                 "message": f"user {email!r} was found",
+                                "data": {
+                                    "email": email,
+                                    "password": password,
+                                    "access_token": access_token,
+                                    "refresh_token": refresh_token,
+                                },
                             }
                         ),
                         200,
@@ -76,9 +79,10 @@ class LoginController:
                 return (
                     jsonify(
                         {
+                            "success": False,
                             "status_code": 404,
-                            "result": None,
                             "message": f"user {email!r} not found",
+                            "data": {"email": email, "password": password},
                         }
                     ),
                     404,
@@ -87,9 +91,10 @@ class LoginController:
                 return (
                     jsonify(
                         {
+                            "success": False,
                             "status_code": 404,
-                            "result": None,
                             "message": f"user {email!r} not found",
+                            "data": {"email": email, "password": password},
                         }
                     ),
                     404,

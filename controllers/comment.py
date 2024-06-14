@@ -1,5 +1,4 @@
 from database import CommentCRUD
-from traceback import print_exc
 from flask import jsonify
 import datetime
 from utils import CommentNotFound
@@ -12,11 +11,38 @@ class CommentController:
 
     async def clear_comment_by_task_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id must be integer"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         else:
             if not task_id > 0:
                 return (
-                    jsonify({"errors": {"task_id": "task_id must be greater than 0"}}),
+                    jsonify(
+                        {
+                            "success": False,
+                            "status_code": 400,
+                            "message": {"task_id": "task id must be greater than 0"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": task_id,
+                            },
+                        }
+                    ),
                     400,
                 )
         try:
@@ -27,7 +53,15 @@ class CommentController:
             return (
                 jsonify(
                     {
-                        "errors": f"comment user '{user.id}' with task id '{task_id}' not found"
+                        "success": False,
+                        "status_code": 404,
+                        "message": f"task with id '{task_id}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 404,
@@ -36,8 +70,15 @@ class CommentController:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
-                        "message": f"success clear comment '{user.id}' with task id '{task_id}'",
+                        "message": f"success clear comment task id '{task_id}'",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 201,
@@ -45,11 +86,38 @@ class CommentController:
 
     async def get_comment_by_task_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id must be integer"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         else:
             if not task_id > 0:
                 return (
-                    jsonify({"errors": {"task_id": "task_id must be greater than 0"}}),
+                    jsonify(
+                        {
+                            "success": False,
+                            "status_code": 400,
+                            "message": {"task_id": "task id must be greater than 0"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": task_id,
+                            },
+                        }
+                    ),
                     400,
                 )
         try:
@@ -59,7 +127,17 @@ class CommentController:
         except CommentNotFound:
             return (
                 jsonify(
-                    {"errors": f"comment user '{user.id}' with '{task_id}' not found"}
+                    {
+                        "success": False,
+                        "status_code": 404,
+                        "message": f"task with id '{task_id}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
                 ),
                 404,
             )
@@ -67,6 +145,9 @@ class CommentController:
             return (
                 jsonify(
                     {
+                        "success": True,
+                        "status_code": 200,
+                        "message": f"comment task id '{task_id}' was found",
                         "data": [
                             {
                                 "avatar_url": user.avatar_url,
@@ -78,7 +159,7 @@ class CommentController:
                                 "updated_at": comment.updated_at,
                             }
                             for user, comment in result
-                        ]
+                        ],
                     }
                 ),
                 200,
@@ -90,45 +171,131 @@ class CommentController:
             return (
                 jsonify(
                     {
-                        "errors": {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {
                             "task_id": "task id is empety",
                             "comment": "comment is empety",
-                        }
+                        },
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
                 400,
             )
         if not comment or comment.isspace():
-            return jsonify({"errors": {"comment": "comment is empety"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {
+                            "comment": "comment is empety",
+                        },
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         if not task_id:
-            return jsonify({"errors": {"task_id": "task id is empety"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id is empety"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         if not isinstance(task_id, int) and task_id:
-            return jsonify({"errors": {"task_id": "task id must be integer"}}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": {"task_id": "task id must be integer"},
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
+                    }
+                ),
+                400,
+            )
         else:
             if not task_id > 0:
                 return (
-                    jsonify({"errors": {"task_id": "task_id must be greater than 0"}}),
+                    jsonify(
+                        {
+                            "success": False,
+                            "status_code": 400,
+                            "message": {"task_id": "task id must be greater than 0"},
+                            "data": {
+                                "user_id": user.id,
+                                "username": user.username,
+                                "email": user.email,
+                                "task_id": task_id,
+                            },
+                        }
+                    ),
                     400,
                 )
         try:
-            await self.comment_database.insert(
+            result = await self.comment_database.insert(
                 user.id, comment, task_id, created_at, created_at
             )
         except IntegrityError:
             return (
                 jsonify(
                     {
-                        "message": f"task '{task_id}' not found",
+                        "success": False,
+                        "status_code": 404,
+                        "message": f"task with id '{task_id}' not found",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": task_id,
+                        },
                     }
                 ),
-                400,
+                404,
             )
         else:
             return (
                 jsonify(
                     {
+                        "success": True,
                         "status_code": 201,
-                        "message": f"success add comment task '{task_id}'",
+                        "message": f"success add comment task id '{task_id}'",
+                        "data": {
+                            "user_id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "task_id": result.task_id,
+                            "comment_id": result.id,
+                            "comment": result.comment,
+                            "created_at": result.created_at,
+                            "updated_at": result.updated_at,
+                        },
                     }
                 ),
                 201,
