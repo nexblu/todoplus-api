@@ -21,11 +21,11 @@ class UserCRUD(Database):
         db_session.commit()
 
     async def get(self, type, **kwargs):
-        email = kwargs.get("email")
-        if type == "email":
+        username = kwargs.get("username")
+        if type == "username":
             try:
                 if user := UserDatabase.query.filter(
-                    func.lower(UserDatabase.email) == email.lower()
+                    func.lower(UserDatabase.username) == username.lower()
                 ).first():
                     return user
                 raise UserNotFound

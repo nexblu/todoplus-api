@@ -2,7 +2,7 @@ import datetime
 from database import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
 from flask import jsonify
 import datetime
-from utils import TaskNotFound, Miscellaneous
+from utils import TaskNotFound, Validator
 
 
 class TaskController:
@@ -13,7 +13,7 @@ class TaskController:
         self.bookmark_database = BookmarkCRUD()
 
     async def add_task(self, user, task, description, tags):
-        if errors := await Miscellaneous.validate_task(task, tags):
+        if errors := await Validator.validate_task(task, tags):
             return (
                 jsonify(
                     {
