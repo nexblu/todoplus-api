@@ -1,9 +1,9 @@
 from flask import Blueprint, request
 from utils import token_required
-from controllers import IsPinController
+from controllers import TaskPinController
 
 todo_list_pinned_router = Blueprint("api user task pinned", __name__)
-is_pin_controller = IsPinController()
+is_pin_controller = TaskPinController()
 
 
 @todo_list_pinned_router.get("/todoplus/v1/todolist/is-pin")

@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError, PendingRollbackError
 import traceback
 
 
-class IsPinController:
+class TaskPinController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()

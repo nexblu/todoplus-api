@@ -4,7 +4,7 @@ from .bookmark import *
 from .account_active import *
 from .email import *
 from .is_done import *
-from .is_pin import *
+from .task_pin import *
 from .refresh_token import *
 from .register import *
 from .reset_password import *
