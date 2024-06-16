@@ -15,9 +15,10 @@ mapper_registry = registry()
 class BookmarkPinDatabase:
     query = db_session.query_property()
 
-    def __init__(self, user_id, task_id, created_at):
+    def __init__(self, user_id, task_id, bookmark_id, created_at):
         self.user_id = user_id
         self.task_id = task_id
+        self.bookmark_id = bookmark_id
         self.created_at = created_at
 
     def __repr__(self):
@@ -35,21 +36,22 @@ bookmark_pin_table = Table(
         nullable=False,
     ),
     Column(
-        "task_id",
-        Integer,
-        ForeignKey("bookmark.task_id", ondelete="CASCADE"),
-        unique=True,
-        nullable=False,
-    ),
-    Column(
         "bookmark_id",
         Integer,
         ForeignKey("bookmark.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
     ),
+    Column(
+        "task_id",
+        Integer,
+        ForeignKey("bookmark.task_id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    ),
     Column("created_at", Float, nullable=False),
     CheckConstraint("user_id >= 0", name="positive_user_id"),
+    CheckConstraint("bookmark_id >= 0", name="positive_bookmark_id"),
     CheckConstraint("task_id >= 0", name="positive_task_id"),
     CheckConstraint("created_at >= 0", name="positive_created_at"),
 )

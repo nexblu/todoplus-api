@@ -20,7 +20,7 @@ from api.account_active import account_active_router
 from api.refresh_token import refresh_token_router
 from api.is_done import todo_list_is_done_router
 from api.bookmark import todo_list_bookmark_router
-from api.is_pin import todo_list_pinned_router
+from api.task_pin import todo_list_pinned_router
 from api.comment import todo_list_comment_router
 
 app = Flask(__name__)
