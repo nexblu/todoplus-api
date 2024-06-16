@@ -1,4 +1,4 @@
-from database import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
+from database import TodoListCRUD, IsDoneCRUD, TaskPinCRUD, BookmarkCRUD
 from flask import jsonify
 from utils import TaskNotFound, FailedIsDone
 from sqlalchemy.exc import IntegrityError
@@ -8,7 +8,7 @@ class IsDoneController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()
-        self.is_pin_database = IsPinCRUD()
+        self.is_pin_database = TaskPinCRUD()
         self.bookmark_database = BookmarkCRUD()
 
     async def get_is_done_by_id(self, user, task_id):
@@ -86,11 +86,11 @@ class IsDoneController:
                             "tags": todo_list.tags,
                             "is_done": True,
                             "is_done_id": is_done.id,
-                            "is_pin": await self.is_pin_database.get(
-                                "is_pin", task_id=todo_list.id, user_id=author.id
+                            "task_pin": await self.is_pin_database.get(
+                                "task_pin", task_id=todo_list.id, user_id=author.id
                             ),
-                            "is_pin_id": await self.is_pin_database.get(
-                                "is_pin_id", task_id=todo_list.id, user_id=author.id
+                            "task_pin_id": await self.is_pin_database.get(
+                                "task_pin_id", task_id=todo_list.id, user_id=author.id
                             ),
                             "bookmark": await self.bookmark_database.get(
                                 "bookmark", task_id=todo_list.id, user_id=author.id
@@ -312,13 +312,13 @@ class IsDoneController:
                                 "tags": todo_list.tags,
                                 "is_done": True,
                                 "is_done_id": is_done.id,
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin",
+                                "task_pin": await self.is_pin_database.get(
+                                    "task_pin",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin_id": await self.is_pin_database.get(
-                                    "is_pin_id",
+                                "task_pin_id": await self.is_pin_database.get(
+                                    "task_pin_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),

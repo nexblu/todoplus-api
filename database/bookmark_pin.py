@@ -1,5 +1,5 @@
 from .config import db_session, init_db
-from models import BookmarkPinDatabase, TodoListDatabase
+from models import BookmarkPinDatabase, TodoListDatabase, UserDatabase, BookmarkDatabase
 from .database import Database
 from sqlalchemy import and_, desc
 from utils import TaskNotFound, BookmarkAlreadyPinned
@@ -12,13 +12,13 @@ class BookmarkPinCRUD(Database):
         init_db()
         self.todo_list_database = TodoListCRUD()
 
-    async def insert(self, user, task_id, bookmark_id, created_at):
+    async def insert(self, user_id, task_id, bookmark_id, created_at):
         if not (
             task := (
                 TodoListDatabase.query.filter(
                     and_(
                         TodoListDatabase.id == task_id,
-                        TodoListDatabase.user_id == user.id,
+                        TodoListDatabase.user_id == user_id,
                     )
                 )
                 .order_by(desc(TodoListDatabase.created_at))
@@ -30,7 +30,7 @@ class BookmarkPinCRUD(Database):
             BookmarkPinDatabase.query.filter(
                 and_(
                     BookmarkPinDatabase.task_id == task_id,
-                    BookmarkPinDatabase.user_id == user.id,
+                    BookmarkPinDatabase.user_id == user_id,
                 )
             )
             .order_by(desc(BookmarkPinDatabase.created_at))
@@ -38,7 +38,7 @@ class BookmarkPinCRUD(Database):
         ):
             raise BookmarkAlreadyPinned
         new_bookmark_pin = BookmarkPinDatabase(
-            user_id=user.id,
+            user_id=user_id,
             task_id=task_id,
             bookmark_id=bookmark_id,
             created_at=created_at,
@@ -49,10 +49,51 @@ class BookmarkPinCRUD(Database):
         return new_bookmark_pin
 
     async def delete(self, category, **kwargs):
-        pass
+        user_id = kwargs.get("user_id")
+        bookmark_id = kwargs.get("bookmark_id")
+        task_id = kwargs.get("task_id")
+        if category == "bookmark_id":
+            bookmark_pin = BookmarkPinDatabase.query.filter(
+                and_(
+                    BookmarkPinDatabase.task_id == task_id,
+                    BookmarkPinDatabase.user_id == user_id,
+                    BookmarkPinDatabase.bookmark_id == bookmark_id,
+                )
+            ).delete()
+            db_session.commit()
+            if not bookmark_pin:
+                raise TaskNotFound
 
     async def get(self, category, **kwargs):
-        pass
+        user_id = kwargs.get("user_id")
+        bookmark_id = kwargs.get("bookmark_id")
+        task_id = kwargs.get("task_id")
+        if category == "bookmark_id":
+            if (
+                bookmark_pin := db_session.query(
+                    UserDatabase,
+                    TodoListDatabase,
+                    BookmarkDatabase,
+                    BookmarkPinDatabase,
+                )
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .join(BookmarkDatabase)
+                .join(
+                    BookmarkPinDatabase,
+                    BookmarkDatabase.id == BookmarkPinDatabase.bookmark_id,
+                )
+                .filter(
+                    UserDatabase.id == user_id,
+                    TodoListDatabase.id == task_id,
+                    BookmarkPinDatabase.bookmark_id == bookmark_id,
+                )
+                .order_by(desc(TodoListDatabase.created_at))
+                .first()
+            ):
+                print(bookmark_pin)
+                return bookmark_pin
+            raise TaskNotFound
 
     async def update(self, category, **kwargs):
         pass

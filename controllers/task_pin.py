@@ -1,4 +1,4 @@
-from database import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
+from database import TodoListCRUD, IsDoneCRUD, TaskPinCRUD, BookmarkCRUD
 from utils import TaskNotFound, FailedPinned, TaskAlreadyPinned
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
@@ -9,7 +9,7 @@ class TaskPinController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()
-        self.is_pin_database = IsPinCRUD()
+        self.is_pin_database = TaskPinCRUD()
         self.bookmark_database = BookmarkCRUD()
 
     async def get_is_pin_by_id(self, user, task_id):
@@ -94,10 +94,10 @@ class TaskPinController:
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin", task_id=todo_list.id, user_id=author.id
+                                "task_pin": await self.is_pin_database.get(
+                                    "task_pin", task_id=todo_list.id, user_id=author.id
                                 ),
-                                "is_pin_id": pinned.id,
+                                "task_pin_id": pinned.id,
                                 "bookmark": await self.bookmark_database.get(
                                     "bookmark", task_id=todo_list.id, user_id=author.id
                                 ),
@@ -274,7 +274,7 @@ class TaskPinController:
                             "username": user.username,
                             "email": user.email,
                             "task_id": task_id,
-                            "is_pin_id": result.id,
+                            "task_pin_id": result.id,
                             "created_at": result.created_at,
                         },
                     }
@@ -330,7 +330,7 @@ class TaskPinController:
                                 "username": user.username,
                                 "email": user.email,
                                 "task_id": data.task_id,
-                                "is_pin_id": data.id,
+                                "task_pin_id": data.id,
                                 "created_at": data.created_at,
                             }
                             for data in result
@@ -421,12 +421,12 @@ class TaskPinController:
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin",
+                                "task_pin": await self.is_pin_database.get(
+                                    "task_pin",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin_id": pinned.id,
+                                "task_pin_id": pinned.id,
                                 "bookmark": await self.bookmark_database.get(
                                     "bookmark",
                                     task_id=todo_list.id,
