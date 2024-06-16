@@ -9,3 +9,4 @@ from .task_pin import *
 from .is_done import *
 from .bookmark import *
 from .comment import *
+from .bookmark_pin import *
