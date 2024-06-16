@@ -129,6 +129,19 @@ class BookmarkPinCRUD(Database):
             ):
                 return True
             return False
+        elif category == "id":
+            if (
+                data := BookmarkPinDatabase.query.filter(
+                    and_(
+                        BookmarkPinDatabase.task_id == task_id,
+                        BookmarkPinDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(BookmarkPinDatabase.created_at))
+                .first()
+            ):
+                return data.id
+            return None
 
     async def update(self, category, **kwargs):
         pass

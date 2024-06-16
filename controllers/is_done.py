@@ -1,4 +1,10 @@
-from database import TodoListCRUD, IsDoneCRUD, TaskPinCRUD, BookmarkCRUD
+from database import (
+    TodoListCRUD,
+    IsDoneCRUD,
+    TaskPinCRUD,
+    BookmarkCRUD,
+    BookmarkPinCRUD,
+)
 from flask import jsonify
 from utils import TaskNotFound, FailedIsDone
 from sqlalchemy.exc import IntegrityError
@@ -8,8 +14,9 @@ class IsDoneController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()
-        self.is_pin_database = TaskPinCRUD()
+        self.task_pin_database = TaskPinCRUD()
         self.bookmark_database = BookmarkCRUD()
+        self.bookmark_pin_database = BookmarkPinCRUD()
 
     async def get_is_done_by_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
@@ -86,10 +93,10 @@ class IsDoneController:
                             "tags": todo_list.tags,
                             "is_done": True,
                             "is_done_id": is_done.id,
-                            "task_pin": await self.is_pin_database.get(
+                            "task_pin": await self.task_pin_database.get(
                                 "task_pin", task_id=todo_list.id, user_id=author.id
                             ),
-                            "task_pin_id": await self.is_pin_database.get(
+                            "task_pin_id": await self.task_pin_database.get(
                                 "task_pin_id", task_id=todo_list.id, user_id=author.id
                             ),
                             "bookmark": await self.bookmark_database.get(
@@ -99,6 +106,12 @@ class IsDoneController:
                                 "bookmark_id",
                                 task_id=todo_list.id,
                                 user_id=author.id,
+                            ),
+                            "bookmark_pin": await self.bookmark_pin_database.get(
+                                "is_pin", user_id=user.id, task_id=todo_list.task_id
+                            ),
+                            "bookmark_pin_id": await self.bookmark_pin_database.get(
+                                "id", user_id=user.id, task_id=todo_list.task_id
                             ),
                             "updated_at": todo_list.updated_at,
                             "created_at": todo_list.created_at,
@@ -312,12 +325,12 @@ class IsDoneController:
                                 "tags": todo_list.tags,
                                 "is_done": True,
                                 "is_done_id": is_done.id,
-                                "task_pin": await self.is_pin_database.get(
+                                "task_pin": await self.task_pin_database.get(
                                     "task_pin",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "task_pin_id": await self.is_pin_database.get(
+                                "task_pin_id": await self.task_pin_database.get(
                                     "task_pin_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
@@ -331,6 +344,12 @@ class IsDoneController:
                                     "bookmark_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
+                                ),
+                                "bookmark_pin": await self.bookmark_pin_database.get(
+                                    "is_pin", user_id=user.id, task_id=todo_list.task_id
+                                ),
+                                "bookmark_pin_id": await self.bookmark_pin_database.get(
+                                    "id", user_id=user.id, task_id=todo_list.task_id
                                 ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,
