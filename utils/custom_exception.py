@@ -44,3 +44,15 @@ class FailedPinned(Exception):
     def __init__(self, message="failed pinned"):
         self.message = message
         super().__init__(self.message)
+
+
+class TaskAlreadyPinned(Exception):
+    def __init__(self, message="task already pinned"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class BookmarkAlreadyPinned(Exception):
+    def __init__(self, message="bookmark already pinned"):
+        self.message = message
+        super().__init__(self.message)

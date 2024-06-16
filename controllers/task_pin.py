@@ -1,15 +1,21 @@
-from database import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
-from utils import TaskNotFound, FailedPinned
+from database import (
+    TodoListCRUD,
+    IsDoneCRUD,
+    TaskPinCRUD,
+    BookmarkCRUD,
+    BookmarkPinCRUD,
+)
+from utils import TaskNotFound, FailedPinned, TaskAlreadyPinned
 from flask import jsonify
-from sqlalchemy.exc import IntegrityError
 
 
-class IsPinController:
+class TaskPinController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()
-        self.is_pin_database = IsPinCRUD()
+        self.task_pin_database = TaskPinCRUD()
         self.bookmark_database = BookmarkCRUD()
+        self.bookmark_pin_database = BookmarkPinCRUD()
 
     async def get_is_pin_by_id(self, user, task_id):
         if not isinstance(task_id, int) and task_id:
@@ -48,7 +54,7 @@ class IsPinController:
                     400,
                 )
         try:
-            result = await self.is_pin_database.get(
+            result = await self.task_pin_database.get(
                 "task_id", user_id=user.id, task_id=task_id
             )
         except TaskNotFound:
@@ -93,10 +99,10 @@ class IsPinController:
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin", task_id=todo_list.id, user_id=author.id
+                                "task_pin": await self.task_pin_database.get(
+                                    "task_pin", task_id=todo_list.id, user_id=author.id
                                 ),
-                                "is_pin_id": pinned.id,
+                                "task_pin_id": pinned.id,
                                 "bookmark": await self.bookmark_database.get(
                                     "bookmark", task_id=todo_list.id, user_id=author.id
                                 ),
@@ -104,6 +110,12 @@ class IsPinController:
                                     "bookmark_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
+                                ),
+                                "bookmark_pin": await self.bookmark_pin_database.get(
+                                    "is_pin", user_id=user.id, task_id=todo_list.task_id
+                                ),
+                                "bookmark_pin_id": await self.bookmark_pin_database.get(
+                                    "id", user_id=user.id, task_id=todo_list.task_id
                                 ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,
@@ -151,7 +163,7 @@ class IsPinController:
                     400,
                 )
         try:
-            await self.is_pin_database.delete(
+            await self.task_pin_database.delete(
                 "task_id", user_id=user.id, task_id=task_id
             )
         except TaskNotFound:
@@ -226,8 +238,8 @@ class IsPinController:
                     400,
                 )
         try:
-            result = await self.is_pin_database.insert(user.id, task_id)
-        except IntegrityError:
+            result = await self.task_pin_database.insert(user.id, task_id)
+        except TaskAlreadyPinned:
             return (
                 jsonify(
                     {
@@ -269,11 +281,11 @@ class IsPinController:
                         "status_code": 201,
                         "message": f"success pinned task id '{task_id}'",
                         "data": {
-                            "user_id": result.user_id,
+                            "user_id": user.id,
                             "username": user.username,
                             "email": user.email,
-                            "task_id": result.task_id,
-                            "is_pin_id": result.id,
+                            "task_id": task_id,
+                            "task_pin_id": result.id,
                             "created_at": result.created_at,
                         },
                     }
@@ -283,7 +295,7 @@ class IsPinController:
 
     async def add_is_pin(self, user):
         try:
-            result = await self.is_pin_database.update("all", user_id=user.id)
+            result = await self.task_pin_database.update("all", user_id=user.id)
         except TaskNotFound:
             return (
                 jsonify(
@@ -329,7 +341,7 @@ class IsPinController:
                                 "username": user.username,
                                 "email": user.email,
                                 "task_id": data.task_id,
-                                "is_pin_id": data.id,
+                                "task_pin_id": data.id,
                                 "created_at": data.created_at,
                             }
                             for data in result
@@ -341,7 +353,7 @@ class IsPinController:
 
     async def delete_is_pin(self, user):
         try:
-            await self.is_pin_database.delete("all", user_id=user.id)
+            await self.task_pin_database.delete("all", user_id=user.id)
         except TaskNotFound:
             return (
                 jsonify(
@@ -377,7 +389,7 @@ class IsPinController:
 
     async def get_is_pin(self, user):
         try:
-            data = await self.is_pin_database.get("all", user_id=user.id)
+            data = await self.task_pin_database.get("all", user_id=user.id)
         except TaskNotFound:
             return (
                 jsonify(
@@ -420,12 +432,12 @@ class IsPinController:
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin",
+                                "task_pin": await self.task_pin_database.get(
+                                    "task_pin",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin_id": pinned.id,
+                                "task_pin_id": pinned.id,
                                 "bookmark": await self.bookmark_database.get(
                                     "bookmark",
                                     task_id=todo_list.id,
@@ -435,6 +447,12 @@ class IsPinController:
                                     "bookmark_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
+                                ),
+                                "bookmark_pin": await self.bookmark_pin_database.get(
+                                    "is_pin", user_id=user.id, task_id=todo_list.task_id
+                                ),
+                                "bookmark_pin_id": await self.bookmark_pin_database.get(
+                                    "id", user_id=user.id, task_id=todo_list.task_id
                                 ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,

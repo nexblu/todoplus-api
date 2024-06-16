@@ -1,4 +1,4 @@
-class Miscellaneous:
+class Validator:
     @staticmethod
     async def validate_register(username, email, password, confirm_password):
         errors = {}
@@ -17,11 +17,24 @@ class Miscellaneous:
     @staticmethod
     async def validate_task(task, tags):
         errors = {}
-        if not task or task.isspace():
-            errors["task"] = "task is empty"
         if not isinstance(tags, list):
             errors["tags"] = "tags must be array"
-        else:
-            if not tags or len(tags) == 0:
-                errors["password"] = "password is empty"
+        if not task or task.isspace():
+            errors["task"] = "task is empty"
+        if not tags or len(tags) == 0:
+            errors["password"] = "password is empty"
+        return errors
+
+    @staticmethod
+    async def validate_login(username, password):
+        errors = {}
+        if (not username or username.isspace()) and (
+            not password or password.isspace()
+        ):
+            errors["username"] = "username is empty"
+            errors["password"] = "password is empty"
+        if not username or username.isspace():
+            errors["username"] = "username is empty"
+        if not password or password.isspace():
+            errors["password"] = "password is empty"
         return errors

@@ -27,7 +27,9 @@ def token_required():
 
                 user_database = UserCRUD()
                 try:
-                    user = await user_database.get("email", email=user_decoded["email"])
+                    user = await user_database.get(
+                        "username", username=user_decoded["username"]
+                    )
                 except:
                     abort(401)
                 if not (

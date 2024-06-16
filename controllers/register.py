@@ -2,7 +2,7 @@ from flask import jsonify
 from flask_bcrypt import Bcrypt
 from database import UserCRUD
 from sqlalchemy.exc import IntegrityError
-from utils import EmailNotValid, Miscellaneous
+from utils import EmailNotValid, Validator
 
 
 class RegisterController:
@@ -11,7 +11,7 @@ class RegisterController:
         self.bcrypt = Bcrypt()
 
     async def add_user(self, username, email, password, confirm_password):
-        if errors := await Miscellaneous.validate_register(
+        if errors := await Validator.validate_register(
             username, email, password, confirm_password
         ):
             return (

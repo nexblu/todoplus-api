@@ -8,6 +8,6 @@ login_service = LoginController()
 @login_router.post("/todoplus/v1/user/login")
 async def login():
     data = request.json
-    email = data.get("email")
+    username = data.get("username")
     password = data.get("password")
-    return await login_service.login(email, password)
+    return await login_service.login(username, password)

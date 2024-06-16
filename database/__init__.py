@@ -4,6 +4,7 @@ from .user import *
 from .reset_password import *
 from .account_active import *
 from .is_done import *
-from .is_pin import *
+from .task_pin import *
 from .bookmark import *
 from .comment import *
+from .bookmark_pin import *

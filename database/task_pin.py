@@ -3,12 +3,12 @@ from models import TaskPinDatabase, UserDatabase, TodoListDatabase
 from .database import Database
 import datetime
 from sqlalchemy import desc, and_
-from utils import TaskNotFound, FailedPinned
+from utils import TaskNotFound, FailedPinned, TaskAlreadyPinned
 from .user import UserCRUD
 from .todo_list import TodoListCRUD
 
 
-class IsPinCRUD(Database):
+class TaskPinCRUD(Database):
     def __init__(self) -> None:
         super().__init__()
         init_db()
@@ -26,20 +26,31 @@ class IsPinCRUD(Database):
             .order_by(desc(TodoListDatabase.created_at))
             .first()
         ):
-            created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            is_pin = TaskPinDatabase(user_id, task_id, created_at)
-            db_session.add(is_pin)
-            await self.user_database.update(
-                "updated_at", updated_at=created_at, user_id=user_id
-            )
-            await self.todo_list_database.update(
-                "updated_at_task_id",
-                updated_at=created_at,
-                user_id=user_id,
-                task_id=task_id,
-            )
-            db_session.commit()
-            return is_pin
+            if not (
+                data := TaskPinDatabase.query.filter(
+                    and_(
+                        TaskPinDatabase.task_id == task_id,
+                        TaskPinDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(TaskPinDatabase.created_at))
+                .first()
+            ):
+                created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+                is_pin = TaskPinDatabase(user_id, task_id, created_at)
+                db_session.add(is_pin)
+                db_session.commit()
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                await self.todo_list_database.update(
+                    "updated_at_task_id",
+                    updated_at=created_at,
+                    user_id=user_id,
+                    task_id=task_id,
+                )
+                return is_pin
+            raise TaskAlreadyPinned
         raise TaskNotFound
 
     async def delete(self, category, **kwargs):
@@ -94,7 +105,7 @@ class IsPinCRUD(Database):
     async def get(self, category, **kwargs):
         task_id = kwargs.get("task_id")
         user_id = kwargs.get("user_id")
-        if category == "is_pin":
+        if category == "task_pin":
             if (
                 data := TaskPinDatabase.query.filter(
                     and_(
@@ -107,7 +118,7 @@ class IsPinCRUD(Database):
             ):
                 return True
             return False
-        elif category == "is_pin_id":
+        elif category == "task_pin_id":
             if (
                 data := TaskPinDatabase.query.filter(
                     and_(
@@ -166,7 +177,7 @@ class IsPinCRUD(Database):
                 for data in todo:
                     if not (
                         is_pin_ := await self.get(
-                            "is_pin_id", user_id=user_id, task_id=data.id
+                            "task_pin_id", user_id=user_id, task_id=data.id
                         )
                     ):
                         is_pin = TaskPinDatabase(user_id, data.id, created_at)

@@ -1,19 +1,26 @@
 import datetime
-from database import TodoListCRUD, IsDoneCRUD, BookmarkCRUD, IsPinCRUD
+from database import (
+    TodoListCRUD,
+    IsDoneCRUD,
+    BookmarkCRUD,
+    TaskPinCRUD,
+    BookmarkPinCRUD,
+)
 from flask import jsonify
 import datetime
-from utils import TaskNotFound, Miscellaneous
+from utils import TaskNotFound, Validator
 
 
 class TaskController:
     def __init__(self) -> None:
         self.todo_list_database = TodoListCRUD()
         self.is_done_database = IsDoneCRUD()
-        self.is_pin_database = IsPinCRUD()
+        self.task_pin_database = TaskPinCRUD()
         self.bookmark_database = BookmarkCRUD()
+        self.bookmark_pin_database = BookmarkPinCRUD()
 
     async def add_task(self, user, task, description, tags):
-        if errors := await Miscellaneous.validate_task(task, tags):
+        if errors := await Validator.validate_task(task, tags):
             return (
                 jsonify(
                     {
@@ -110,13 +117,13 @@ class TaskController:
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin": await self.is_pin_database.get(
-                                    "is_pin",
+                                "task_pin": await self.task_pin_database.get(
+                                    "task_pin",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
-                                "is_pin_id": await self.is_pin_database.get(
-                                    "is_pin_id",
+                                "task_pin_id": await self.task_pin_database.get(
+                                    "task_pin_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
                                 ),
@@ -129,6 +136,12 @@ class TaskController:
                                     "bookmark_id",
                                     task_id=todo_list.id,
                                     user_id=author.id,
+                                ),
+                                "bookmark_pin": await self.bookmark_pin_database.get(
+                                    "is_pin", user_id=user.id, task_id=todo_list.task_id
+                                ),
+                                "bookmark_pin_id": await self.bookmark_pin_database.get(
+                                    "id", user_id=user.id, task_id=todo_list.task_id
                                 ),
                                 "updated_at": todo_list.updated_at,
                                 "created_at": todo_list.created_at,
@@ -260,11 +273,11 @@ class TaskController:
                                 task_id=todo_list.id,
                                 user_id=author.id,
                             ),
-                            "is_pin": await self.is_pin_database.get(
-                                "is_pin", task_id=todo_list.id, user_id=author.id
+                            "task_pin": await self.task_pin_database.get(
+                                "task_pin", task_id=todo_list.id, user_id=author.id
                             ),
-                            "is_pin_id": await self.is_pin_database.get(
-                                "is_pin_id", task_id=todo_list.id, user_id=author.id
+                            "task_pin_id": await self.task_pin_database.get(
+                                "task_pin_id", task_id=todo_list.id, user_id=author.id
                             ),
                             "bookmark": await self.bookmark_database.get(
                                 "bookmark", task_id=todo_list.id, user_id=author.id
@@ -273,6 +286,12 @@ class TaskController:
                                 "bookmark_id",
                                 task_id=todo_list.id,
                                 user_id=author.id,
+                            ),
+                            "bookmark_pin": await self.bookmark_pin_database.get(
+                                "is_pin", user_id=user.id, task_id=todo_list.task_id
+                            ),
+                            "bookmark_pin_id": await self.bookmark_pin_database.get(
+                                "id", user_id=user.id, task_id=todo_list.task_id
                             ),
                             "updated_at": todo_list.updated_at,
                             "created_at": todo_list.created_at,

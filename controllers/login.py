@@ -1,4 +1,4 @@
-from utils import UserNotFound
+from utils import UserNotFound, Validator
 from config import access_token_key, algorithm, refresh_token_key
 import jwt
 import datetime
@@ -12,17 +12,29 @@ class LoginController:
         self.user_database = UserCRUD()
         self.bcrypt = Bcrypt()
 
-    async def login(self, email, password):
+    async def login(self, username, password):
+        if errors := await Validator.validate_login(username, password):
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "status_code": 400,
+                        "message": errors,
+                        "data": {"username": username, "password": password},
+                    }
+                ),
+                400,
+            )
         try:
-            user = await self.user_database.get("email", email=email)
+            user = await self.user_database.get("username", username=username)
         except UserNotFound:
             return (
                 jsonify(
                     {
                         "success": False,
                         "status_code": 404,
-                        "message": f"user {email!r} not found",
-                        "data": {"email": email, "password": password},
+                        "message": f"user {username} not found",
+                        "data": {"username": username, "password": password},
                     }
                 ),
                 404,
@@ -65,12 +77,16 @@ class LoginController:
                             {
                                 "success": True,
                                 "status_code": 200,
-                                "message": f"user {email!r} was found",
+                                "message": f"user {user.username!r} was found",
                                 "data": {
-                                    "email": email,
+                                    "user_id": user.id,
+                                    "username": user.username,
+                                    "email": user.email,
                                     "password": password,
-                                    "access_token": access_token,
-                                    "refresh_token": refresh_token,
+                                    "token": {
+                                        "access_token": access_token,
+                                        "refresh_token": refresh_token,
+                                    },
                                 },
                             }
                         ),
@@ -81,8 +97,8 @@ class LoginController:
                         {
                             "success": False,
                             "status_code": 404,
-                            "message": f"user {email!r} not found",
-                            "data": {"email": email, "password": password},
+                            "message": f"user {username!r} not found",
+                            "data": {"username": username, "password": password},
                         }
                     ),
                     404,
@@ -93,8 +109,8 @@ class LoginController:
                         {
                             "success": False,
                             "status_code": 404,
-                            "message": f"user {email!r} not found",
-                            "data": {"email": email, "password": password},
+                            "message": f"user {username!r} not found",
+                            "data": {"username": username, "password": password},
                         }
                     ),
                     404,
