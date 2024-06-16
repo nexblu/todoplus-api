@@ -1,7 +1,8 @@
 from database import TodoListCRUD, IsDoneCRUD, IsPinCRUD, BookmarkCRUD
-from utils import TaskNotFound, FailedPinned
+from utils import TaskNotFound, FailedPinned, TaskAlreadyPinned
 from flask import jsonify
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
+import traceback
 
 
 class IsPinController:
@@ -227,7 +228,7 @@ class IsPinController:
                 )
         try:
             result = await self.is_pin_database.insert(user.id, task_id)
-        except IntegrityError:
+        except TaskAlreadyPinned:
             return (
                 jsonify(
                     {
@@ -269,10 +270,10 @@ class IsPinController:
                         "status_code": 201,
                         "message": f"success pinned task id '{task_id}'",
                         "data": {
-                            "user_id": result.user_id,
+                            "user_id": user.id,
                             "username": user.username,
                             "email": user.email,
-                            "task_id": result.task_id,
+                            "task_id": task_id,
                             "is_pin_id": result.id,
                             "created_at": result.created_at,
                         },

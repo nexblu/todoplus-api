@@ -3,7 +3,7 @@ from models import TaskPinDatabase, UserDatabase, TodoListDatabase
 from .database import Database
 import datetime
 from sqlalchemy import desc, and_
-from utils import TaskNotFound, FailedPinned
+from utils import TaskNotFound, FailedPinned, TaskAlreadyPinned
 from .user import UserCRUD
 from .todo_list import TodoListCRUD
 
@@ -26,20 +26,31 @@ class IsPinCRUD(Database):
             .order_by(desc(TodoListDatabase.created_at))
             .first()
         ):
-            created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            is_pin = TaskPinDatabase(user_id, task_id, created_at)
-            db_session.add(is_pin)
-            await self.user_database.update(
-                "updated_at", updated_at=created_at, user_id=user_id
-            )
-            await self.todo_list_database.update(
-                "updated_at_task_id",
-                updated_at=created_at,
-                user_id=user_id,
-                task_id=task_id,
-            )
-            db_session.commit()
-            return is_pin
+            if not (
+                data := TaskPinDatabase.query.filter(
+                    and_(
+                        TaskPinDatabase.task_id == task_id,
+                        TaskPinDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(TaskPinDatabase.created_at))
+                .first()
+            ):
+                created_at = datetime.datetime.now(datetime.timezone.utc).timestamp()
+                is_pin = TaskPinDatabase(user_id, task_id, created_at)
+                db_session.add(is_pin)
+                db_session.commit()
+                await self.user_database.update(
+                    "updated_at", updated_at=created_at, user_id=user_id
+                )
+                await self.todo_list_database.update(
+                    "updated_at_task_id",
+                    updated_at=created_at,
+                    user_id=user_id,
+                    task_id=task_id,
+                )
+                return is_pin
+            raise TaskAlreadyPinned
         raise TaskNotFound
 
     async def delete(self, category, **kwargs):

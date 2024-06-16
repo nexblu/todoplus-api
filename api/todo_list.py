@@ -35,14 +35,14 @@ async def todo_list_delete():
 @token_required()
 async def todo_list_get_task_id(task_id):
     user = request.user
-    return await task_service.get_task_by_id(user.id, task_id)
+    return await task_service.get_task_by_id(user, task_id)
 
 
 @todo_list_router.delete("/todoplus/v1/todolist/<int:task_id>")
 @token_required()
 async def todo_list_delete_task_id(task_id):
     user = request.user
-    return await task_service.delete_task_by_id(user.id, task_id)
+    return await task_service.delete_task_by_id(user, task_id)
 
 
 @todo_list_router.put("/todoplus/v1/todolist/<int:task_id>")
@@ -51,4 +51,4 @@ async def todo_list_put_task_id(task_id):
     user = request.user
     data = request.json
     new_task = data.get("new_task")
-    return await task_service.put_task_by_id(user.id, task_id, new_task)
+    return await task_service.put_task_by_id(user, task_id, new_task)
