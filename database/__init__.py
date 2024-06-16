@@ -7,3 +7,4 @@ from .is_done import *
 from .task_pin import *
 from .bookmark import *
 from .comment import *
+from .bookmark_pin import *

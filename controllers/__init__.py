@@ -9,3 +9,4 @@ from .refresh_token import *
 from .register import *
 from .reset_password import *
 from .comment import *
+from .bookmark_pin import *
