@@ -84,16 +84,51 @@ class BookmarkPinCRUD(Database):
                     BookmarkDatabase.id == BookmarkPinDatabase.bookmark_id,
                 )
                 .filter(
-                    UserDatabase.id == user_id,
-                    TodoListDatabase.id == task_id,
-                    BookmarkPinDatabase.bookmark_id == bookmark_id,
+                    and_(
+                        UserDatabase.id == user_id,
+                        TodoListDatabase.id == task_id,
+                        BookmarkPinDatabase.bookmark_id == bookmark_id,
+                    )
                 )
                 .order_by(desc(TodoListDatabase.created_at))
                 .first()
             ):
-                print(bookmark_pin)
                 return bookmark_pin
             raise TaskNotFound
+        elif category == "all":
+            if (
+                bookmark_pin := db_session.query(
+                    UserDatabase,
+                    TodoListDatabase,
+                    BookmarkDatabase,
+                    BookmarkPinDatabase,
+                )
+                .select_from(UserDatabase)
+                .join(TodoListDatabase)
+                .join(BookmarkDatabase)
+                .join(
+                    BookmarkPinDatabase,
+                    BookmarkDatabase.id == BookmarkPinDatabase.bookmark_id,
+                )
+                .filter(UserDatabase.id == user_id)
+                .order_by(desc(TodoListDatabase.created_at))
+                .all()
+            ):
+                return bookmark_pin
+            raise TaskNotFound
+        elif category == "is_pin":
+            if (
+                data := BookmarkPinDatabase.query.filter(
+                    and_(
+                        BookmarkPinDatabase.task_id == task_id,
+                        BookmarkPinDatabase.user_id == user_id,
+                    )
+                )
+                .order_by(desc(BookmarkPinDatabase.created_at))
+                .first()
+            ):
+                return True
+            return False
 
     async def update(self, category, **kwargs):
         pass
